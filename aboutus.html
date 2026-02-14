@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6;
+            --accent-secondary: #f59e0b;
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar { width: 10px; }
+        html::-webkit-scrollbar-track { background: var(--bg-primary); }
+        html::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary)); border-radius: 5px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PRELOADER
+           ═══════════════════════════════════════════════════════════════ */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .preloader-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .preloader-bar { width: 200px; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; }
+        .preloader-bar::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            animation: loading 2s ease-out forwards;
+        }
+        @keyframes loading { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); } 50% { filter: drop-shadow(0 0 25px var(--accent-glow)); } }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ANIMATED BACKGROUND
+           ═══════════════════════════════════════════════════════════════ */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════════════════════════ */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--fg-primary);
+        }
+        .headline-display { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.01em; }
+        .headline-medium { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; }
+        .text-body { font-size: 1rem; line-height: 1.7; color: var(--fg-secondary); }
+        .text-body-large { font-size: 1.125rem; line-height: 1.8; color: var(--fg-secondary); }
+        .text-gradient {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION (Consistent with Index)
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: var(--transition-base);
+        }
+        .navbar.scrolled {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0.75rem 0;
+        }
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 12px;
+            transition: var(--transition-base);
+        }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-container:hover .logo-icon { transform: scale(1.05) rotate(-5deg); }
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--fg-primary);
+            transition: var(--transition-base);
+        }
+        .logo-container:hover .logo-text { color: var(--accent-primary); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link {
+            position: relative;
+            padding: 0.75rem 1.25rem;
+            color: var(--fg-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-base);
+            border-radius: var(--radius-sm);
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: var(--transition-base);
+            transform: translateX(-50%);
+        }
+        .nav-link:hover { color: var(--fg-primary); background: rgba(255, 255, 255, 0.05); }
+        .nav-link:hover::before { width: calc(100% - 2rem); }
+        .nav-link.active { color: var(--accent-primary); }
+        .nav-link.active::before { width: calc(100% - 2rem); }
+        
+        .nav-cta {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: var(--transition-base);
+            box-shadow: var(--shadow-sm);
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3); }
+
+        /* Mobile Menu */
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+        
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-primary);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-base);
+        }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--fg-primary);
+            text-decoration: none;
+            padding: 1rem;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition-base);
+        }
+        .mobile-nav.active a { transform: translateY(0); opacity: 1; }
+        .mobile-nav.active a:nth-child(1) { transition-delay: 0.1s; }
+        .mobile-nav.active a:nth-child(2) { transition-delay: 0.15s; }
+        .mobile-nav.active a:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-nav.active a:nth-child(4) { transition-delay: 0.25s; }
+        .mobile-nav.active a:nth-child(5) { transition-delay: 0.3s; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PAGE HEADER STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        .page-header {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            padding: 10rem 2rem 6rem;
+            overflow: hidden;
+        }
+        .page-header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .page-header-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+        }
+        .page-header-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(10, 15, 26, 0.5) 0%, var(--bg-primary) 100%);
+        }
+        .page-header-content { max-width: 800px; }
+        .breadcrumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--fg-muted);
+        }
+        .breadcrumb a { color: var(--accent-primary); text-decoration: none; transition: var(--transition-fast); }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ABOUT STORY SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .story-section {
+            padding: 6rem 2rem;
+            position: relative;
+        }
+        .section-container { max-width: 1400px; margin: 0 auto; }
+        
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        .story-image-wrapper {
+            position: relative;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+        .story-image-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--accent-primary);
+            border-radius: var(--radius-xl);
+            z-index: -1;
+            opacity: 0.5;
+        }
+        .story-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            transition: var(--transition-slow);
+        }
+        .story-image-wrapper:hover .story-image { transform: scale(1.05); }
+        
+        .story-content h2 { margin-bottom: 1.5rem; }
+        .story-content p { margin-bottom: 1.5rem; }
+        .story-highlight {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+        .highlight-item h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.25rem;
+        }
+        .highlight-item span { font-size: 0.9rem; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MISSION VISION VALUES
+           ═══════════════════════════════════════════════════════════════ */
+        .mvv-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(180deg, var(--bg-secondary), var(--bg-primary));
+        }
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        .mvv-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            text-align: center;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .mvv-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: var(--transition-base);
+        }
+        .mvv-card:hover::before { transform: scaleX(1); }
+        .mvv-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); }
+        
+        .mvv-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1.5rem;
+            background: rgba(20, 184, 166, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            transition: var(--transition-base);
+        }
+        .mvv-card:hover .mvv-icon { background: var(--accent-primary); color: white; transform: scale(1.1); }
+        .mvv-icon svg { width: 32px; height: 32px; }
+        .mvv-card h3 { margin-bottom: 1rem; font-size: 1.5rem; }
+        .mvv-card p { color: var(--fg-secondary); font-size: 0.95rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TIMELINE SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .timeline-section { padding: 6rem 2rem; position: relative; }
+        .timeline-container { position: relative; max-width: 1000px; margin: 0 auto; }
+        
+        /* The Line */
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+            box-sizing: border-box;
+            margin-bottom: 2rem;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            right: -12px;
+            background: var(--bg-primary);
+            border: 4px solid var(--accent-primary);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+            transition: var(--transition-base);
+        }
+        .timeline-item:hover::after {
+            background: var(--accent-primary);
+            box-shadow: 0 0 0 6px rgba(20, 184, 166, 0.2);
+        }
+        
+        .timeline-left { left: 0; }
+        .timeline-left .timeline-content { text-align: right; padding: 1.5rem; background: var(--glass-bg); border-radius: var(--radius-md); border: 1px solid var(--glass-border); }
+        
+        .timeline-right { left: 50%; }
+        .timeline-right::after { left: -12px; }
+        .timeline-right .timeline-content { text-align: left; padding: 1.5rem; background: var(--glass-bg); border-radius: var(--radius-md); border: 1px solid var(--glass-border); }
+        
+        .timeline-year {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .timeline-content h4 { margin-bottom: 0.5rem; font-size: 1.25rem; }
+        .timeline-content p { font-size: 0.9rem; color: var(--fg-secondary); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TEAM SECTION (Specific to About Page)
+           ═══════════════════════════════════════════════════════════════ */
+        .team-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .team-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: var(--transition-base);
+        }
+        .team-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .team-img-container { height: 300px; overflow: hidden; position: relative; }
+        .team-img-container img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition-slow); }
+        .team-card:hover .team-img-container img { transform: scale(1.1); }
+        .team-info { padding: 1.5rem; text-align: center; }
+        .team-info h4 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+        .team-info span { color: var(--accent-primary); font-size: 0.9rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FAQ SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .faq-section { padding: 6rem 2rem; }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item {
+            margin-bottom: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: var(--transition-base);
+        }
+        .faq-item:hover { border-color: rgba(20, 184, 166, 0.3); }
+        .faq-question {
+            width: 100%;
+            padding: 1.5rem;
+            background: var(--glass-bg);
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--fg-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .faq-question:focus { outline: none; }
+        .faq-icon { transition: var(--transition-base); }
+        .faq-item.active .faq-icon { transform: rotate(45deg); }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .faq-answer-content { padding: 1.5rem; color: var(--fg-secondary); border-top: 1px solid var(--glass-border); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CTA & FOOTER (Consistent)
+           ═══════════════════════════════════════════════════════════════ */
+        .cta-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), #0d9488);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.2;
+        }
+        .cta-content { position: relative; z-index: 1; }
+        .cta-title { color: white; margin-bottom: 1rem; }
+        .cta-text { color: rgba(255,255,255,0.9); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        
+        .footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--glass-border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--fg-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .story-grid { grid-template-columns: 1fr; }
+            .mvv-grid { grid-template-columns: 1fr; }
+            .timeline-container::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
+            .timeline-item::after { left: 19px; }
+            .timeline-left .timeline-content, .timeline-right .timeline-content { text-align: left; }
+            .timeline-right { left: 0%; }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .page-header { padding: 8rem 1.5rem 4rem; }
+            .story-image { height: 300px; }
+            .story-highlight { flex-direction: column; gap: 1.5rem; }
+        }
+
+        /* Reveal Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* Accessibility */
+        :focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SONVI NGO</div>
+        <div class="preloader-bar"></div>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link active">About</a></li>
+                <li><a href="#" class="nav-link">Programs</a></li>
+                <li><a href="#" class="nav-link">Events</a></li>
+                <li><a href="#" class="nav-cta">Get Involved</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="#">Programs</a>
+        <a href="#">Events</a>
+        <a href="#">Get Involved</a>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="page-header-bg">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80" alt="Team working">
+        </div>
+        <div class="page-header-content reveal">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>About Us</span>
+            </div>
+            <h1 class="headline-display">About Us</h1>
+            <p class="text-body-large" style="color: var(--fg-secondary); max-width: 600px; margin: 1rem auto 0;">
+                Dedicated to creating lasting impact through compassion, transparency, and sustainable solutions.
+            </p>
+        </div>
+    </header>
+
+    <!-- Story Section -->
+    <section class="story-section">
+        <div class="section-container">
+            <div class="story-grid">
+                <div class="story-image-wrapper reveal">
+                    <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80" alt="Community Support" class="story-image">
+                </div>
+                <div class="story-content reveal reveal-delay-1">
+                    <h2 class="headline-large">Our Story</h2>
+                    <p class="text-body-large">
+                        Founded in 2018, SONVI NGO began with a simple mission: to bridge the gap between privilege and poverty. What started as a small group of dedicated volunteers has grown into a movement impacting thousands of lives across multiple states.
+                    </p>
+                    <p class="text-body">
+                        Our approach combines grassroots community engagement with strategic partnerships, ensuring that our programs create sustainable impact. From organizing organ donation awareness camps to running educational mentorship programs, we work tirelessly to build hope and dignity for the underprivileged.
+                    </p>
+                    <div class="story-highlight">
+                        <div class="highlight-item">
+                            <h4>2018</h4>
+                            <span>Year Founded</span>
+                        </div>
+                        <div class="highlight-item">
+                            <h4>15K+</h4>
+                            <span>Lives Impacted</span>
+                        </div>
+                        <div class="highlight-item">
+                            <h4>45+</h4>
+                            <span>Cities Reached</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Vision Values -->
+    <section class="mvv-section">
+        <div class="section-container">
+            <div style="text-align: center; margin-bottom: 4rem;" class="reveal">
+                <h2 class="headline-large">What Drives Us</h2>
+            </div>
+            <div class="mvv-grid">
+                <div class="mvv-card reveal">
+                    <div class="mvv-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                    </div>
+                    <h3>Our Mission</h3>
+                    <p>To empower communities through education, healthcare awareness, and social welfare initiatives, creating a society where everyone has the opportunity to thrive.</p>
+                </div>
+                <div class="mvv-card reveal reveal-delay-1">
+                    <div class="mvv-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3>Our Vision</h3>
+                    <p>A world where compassion knows no boundaries, and every individual has access to the resources they need to live a dignified and fulfilling life.</p>
+                </div>
+                <div class="mvv-card reveal reveal-delay-2">
+                    <div class="mvv-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <h3>Core Values</h3>
+                    <p>Integrity, Compassion, Transparency, and Sustainability guide every action we take and every program we implement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline-section">
+        <div class="section-container">
+            <div style="text-align: center; margin-bottom: 4rem;" class="reveal">
+                <h2 class="headline-large">Our Journey</h2>
+                <p class="text-body" style="max-width: 600px; margin: 1rem auto 0;">The milestones that define our growth and impact.</p>
+            </div>
+            <div class="timeline-container">
+                <div class="timeline-item timeline-left reveal">
+                    <div class="timeline-content">
+                        <span class="timeline-year">2018</span>
+                        <h4>Foundation</h4>
+                        <p>SONVI NGO was established with a focus on elderly care and community support.</p>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right reveal">
+                    <div class="timeline-content">
+                        <span class="timeline-year">2019</span>
+                        <h4>Education Initiative</h4>
+                        <p>Launched scholarship programs for underprivileged students in rural areas.</p>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left reveal">
+                    <div class="timeline-content">
+                        <span class="timeline-year">2020</span>
+                        <h4>Pandemic Response</h4>
+                        <p>Distributed food kits and medical supplies to over 5,000 families during COVID-19.</p>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-right reveal">
+                    <div class="timeline-content">
+                        <span class="timeline-year">2022</span>
+                        <h4>Organ Donation Drive</h4>
+                        <p>Partnered with major hospitals to launch a state-wide organ donation awareness campaign.</p>
+                    </div>
+                </div>
+                <div class="timeline-item timeline-left reveal">
+                    <div class="timeline-content">
+                        <span class="timeline-year">2024</span>
+                        <h4>National Recognition</h4>
+                        <p>Awarded 'Best NGO in Social Welfare' by the National Health Authority.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="section-container">
+            <div style="text-align: center;" class="reveal">
+                <h2 class="headline-large">Leadership Team</h2>
+            </div>
+            <div class="team-grid">
+                <div class="team-card reveal">
+                    <div class="team-img-container">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="Director">
+                    </div>
+                    <div class="team-info">
+                        <h4>Rajesh Kumar</h4>
+                        <span>Founder & Director</span>
+                    </div>
+                </div>
+                <div class="team-card reveal reveal-delay-1">
+                    <div class="team-img-container">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" alt="Operations Head">
+                    </div>
+                    <div class="team-info">
+                        <h4>Anjali Sharma</h4>
+                        <span>Head of Operations</span>
+                    </div>
+                </div>
+                <div class="team-card reveal reveal-delay-2">
+                    <div class="team-img-container">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80" alt="Program Manager">
+                    </div>
+                    <div class="team-info">
+                        <h4>Vikram Singh</h4>
+                        <span>Program Manager</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-container">
+            <div style="text-align: center; margin-bottom: 4rem;" class="reveal">
+                <h2 class="headline-large">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    How can I volunteer with SONVI NGO?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        You can sign up through our Volunteer page. We have opportunities ranging from event support to skill-based volunteering like teaching or medical assistance.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item reveal reveal-delay-1">
+                <button class="faq-question">
+                    Is my donation tax-deductible?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes, SONVI NGO is a registered non-profit. All donations are eligible for tax exemption under Section 80G of the Income Tax Act.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item reveal reveal-delay-2">
+                <button class="faq-question">
+                    How does SONVI ensure transparency?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        We publish annual impact reports and financial statements on our website. Donors receive specific updates on how their contributions were utilized.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-content reveal">
+            <h2 class="headline-large cta-title">Join Our Mission</h2>
+            <p class="text-body-large cta-text">Your support helps us reach more lives. Partner with us to create a lasting difference.</p>
+            <a href="#" class="nav-cta" style="display: inline-block; background: white; color: var(--accent-primary);">Contact Us</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Serving Humanity with Compassion</p>
+    </footer>
+
+    <script>
+        // Preloader
+        const preloader = document.getElementById('preloader');
+        window.addEventListener('load', () => {
+            setTimeout(() => { preloader.classList.add('hidden'); }, 2000);
+        });
+
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // Mobile Menu
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('revealed');
+            });
+        }, { threshold: 0.1 });
+        reveals.forEach(el => revealObserver.observe(el));
+
+        // FAQ Accordion
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            const content = item.querySelector('.faq-answer-content');
+
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all
+                faqItems.forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-answer').style.maxHeight = '0';
+                });
+
+                // Open clicked if it wasn't active
+                if (!isActive) {
+                    item.classList.add('active');
+                    answer.style.maxHeight = content.scrollHeight + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

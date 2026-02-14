@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SONVI NGO | Transforming Lives</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES (Dark Theme System)
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6; /* Teal */
+            --accent-secondary: #f59e0b; /* Amber */
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar { width: 10px; }
+        html::-webkit-scrollbar-track { background: var(--bg-primary); }
+        html::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary)); border-radius: 5px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PRELOADER
+           ═══════════════════════════════════════════════════════════════ */
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary);
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            z-index: 10000;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .preloader-logo {
+            font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 2rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .preloader-bar { width: 200px; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; }
+        .preloader-bar::after {
+            content: ''; display: block; width: 0; height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            animation: loading 2s ease-out forwards;
+        }
+        @keyframes loading { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); } 50% { filter: drop-shadow(0 0 25px var(--accent-glow)); } }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ANIMATED BACKGROUND
+           ═══════════════════════════════════════════════════════════════ */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.03; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        /* Floating Particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: floatUp 15s linear infinite;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            20% { opacity: 0.3; }
+            80% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════════════════════════ */
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; }
+        .headline-display { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.01em; }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); }
+        .nav-link::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); transition: var(--transition-base); transform: translateX(-50%); }
+        .nav-link:hover { color: var(--fg-primary); }
+        .nav-link.active { color: var(--accent-primary); }
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           HERO SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .hero { min-height: 100vh; display: flex; align-items: center; position: relative; overflow: hidden; }
+        
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 8rem 2rem 4rem;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(20, 184, 166, 0.1);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            margin-bottom: 1.5rem;
+        }
+        .badge-dot { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; }
+
+        .hero-title { margin-bottom: 1.5rem; }
+        .hero-desc { font-size: 1.125rem; color: var(--fg-secondary); margin-bottom: 2.5rem; max-width: 500px; }
+
+        .hero-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+        .btn-primary {
+            padding: 1rem 2rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white; border: none; border-radius: 50px; font-weight: 600; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem; transition: var(--transition-base);
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+
+        .btn-secondary {
+            padding: 1rem 2rem; background: transparent; border: 1px solid var(--glass-border);
+            color: var(--fg-primary); border-radius: 50px; font-weight: 600; text-decoration: none;
+            transition: var(--transition-base);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.05); border-color: var(--accent-primary); }
+
+        /* Hero Stats */
+        .hero-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); }
+        .stat-box h3 { font-size: 2rem; margin-bottom: 0.25rem; }
+        .stat-box p { font-size: 0.85rem; color: var(--fg-muted); }
+
+        /* Hero Visual Card */
+        .hero-visual {
+            position: relative;
+            height: 500px;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(245, 158, 11, 0.05));
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: var(--transition-slow);
+        }
+        .hero-visual:hover { transform: perspective(1000px) rotateY(0deg) scale(1.02); }
+        
+        .visual-circle {
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 100px rgba(20, 184, 166, 0.3);
+            animation: pulse-ring 3s ease-in-out infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
+            50% { box-shadow: 0 0 0 30px rgba(20, 184, 166, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+        }
+        .visual-icon { font-size: 7rem; color: white; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ABOUT PREVIEW
+           ═══════════════════════════════════════════════════════════════ */
+        .about-preview { padding: 6rem 2rem; position: relative; }
+        .section-container { max-width: 1400px; margin: 0 auto; }
+        
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .about-images { position: relative; height: 500px; }
+        
+        .about-img {
+            position: absolute;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-slow);
+        }
+        .about-img-1 { top: 0; left: 0; width: 250px; height: 350px; object-fit: cover; z-index: 2; }
+        .about-img-2 { bottom: 20px; right: 0; width: 300px; height: 250px; object-fit: cover; z-index: 3; border: 4px solid var(--bg-primary); }
+        .about-pattern {
+            position: absolute; top: 2rem; right: 2rem; width: 200px; height: 200px;
+            background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-lg); z-index: 1;
+        }
+
+        .section-header { margin-bottom: 2rem; }
+        .section-header h2 { margin-bottom: 1rem; }
+        .section-header p { color: var(--fg-secondary); max-width: 500px; }
+
+        .feature-list { list-style: none; margin-top: 2rem; }
+        .feature-item { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+        .feature-icon { width: 40px; height: 40px; background: rgba(20, 184, 166, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent-primary); flex-shrink: 0; }
+        .feature-text h4 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+        .feature-text span { font-size: 0.9rem; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           SERVICES GRID
+           ═══════════════════════════════════════════════════════════════ */
+        .services-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .text-center { text-align: center; }
+        
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; margin-top: 4rem; }
+        .service-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0); transform-origin: left;
+            transition: var(--transition-base);
+        }
+        .service-card:hover::before { transform: scaleX(1); }
+        .service-card:hover { transform: translateY(-10px); border-color: rgba(20, 184, 166, 0.3); box-shadow: var(--shadow-lg); }
+
+        .service-icon {
+            width: 80px; height: 80px; background: rgba(20, 184, 166, 0.1);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem; color: var(--accent-primary); transition: var(--transition-base);
+        }
+        .service-card:hover .service-icon { background: var(--accent-primary); color: white; transform: scale(1.1); }
+        .service-icon svg { width: 36px; height: 36px; }
+        .service-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .service-card p { color: var(--fg-secondary); margin-bottom: 1.5rem; }
+        
+        .service-link {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            color: var(--accent-primary); font-weight: 600; text-decoration: none;
+            font-size: 0.9rem; transition: var(--transition-fast);
+        }
+        .service-link:hover { gap: 0.75rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           IMPACT COUNTERS
+           ═══════════════════════════════════════════════════════════════ */
+        .impact-section { padding: 6rem 2rem; position: relative; }
+        .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-top: 4rem; }
+        
+        .impact-card {
+            text-align: center; padding: 2rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            transition: var(--transition-base);
+        }
+        .impact-card:hover { background: rgba(20, 184, 166, 0.05); border-color: var(--accent-primary); }
+        
+        .impact-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .impact-label { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; font-weight: 600; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TESTIMONIALS
+           ═══════════════════════════════════════════════════════════════ */
+        .testimonials-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .testimonial-slider { position: relative; overflow: hidden; margin-top: 4rem; }
+        .testimonial-track { display: flex; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .testimonial-slide { min-width: 100%; padding: 0 1rem; box-sizing: border-box; }
+        .testimonial-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl); padding: 3rem; text-align: center;
+            max-width: 800px; margin: 0 auto;
+        }
+        .testimonial-text {
+            font-family: 'Playfair Display', serif; font-size: 1.5rem; line-height: 1.6;
+            color: var(--fg-primary); margin-bottom: 2rem; font-style: italic;
+        }
+        .testimonial-author { color: var(--accent-primary); font-weight: 700; }
+        .testimonial-role { color: var(--fg-muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+        .slider-dots { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; }
+        .dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--border-color); cursor: pointer; transition: var(--transition-base);
+        }
+        .dot.active { background: var(--accent-primary); width: 30px; border-radius: 5px; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CTA SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .cta-section {
+            padding: 8rem 2rem; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--accent-primary), #0d9488);
+            text-align: center;
+        }
+        .cta-section::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .cta-content { position: relative; z-index: 1; }
+        .cta-title { color: white; margin-bottom: 1rem; }
+        .cta-text { color: rgba(255,255,255,0.9); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn-white {
+            padding: 1rem 2.5rem; background: white; color: var(--accent-primary);
+            font-weight: 700; border-radius: 50px; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            transition: var(--transition-base); box-shadow: var(--shadow-lg);
+        }
+        .btn-white:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════════════════════ */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--glass-border); padding: 3rem 2rem; text-align: center; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .hero-content { grid-template-columns: 1fr; text-align: center; }
+            .hero-visual { height: 400px; transform: none; margin-top: 2rem; }
+            .hero-desc { margin-left: auto; margin-right: auto; }
+            .about-grid { grid-template-columns: 1fr; }
+            .about-images { height: 400px; margin-bottom: 2rem; }
+            .impact-grid { grid-template-columns: 1fr 1fr; }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .hero-stats { grid-template-columns: 1fr 1fr; }
+            .impact-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SONVI</div>
+        <div class="preloader-bar"></div>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="#" class="nav-link">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="#">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <!-- Particles -->
+        <div class="particles" id="particles"></div>
+        
+        <div class="hero-content">
+            <div>
+                <div class="hero-badge reveal">
+                    <span class="badge-dot"></span>
+                    Non-Profit Organization
+                </div>
+                <h1 class="headline-display hero-title reveal">
+                    Transforming Lives <br>Through <span class="text-gradient">Action</span>
+                </h1>
+                <p class="hero-desc reveal delay-1">
+                    We bridge the gap between privilege and poverty through sustainable programs in education, healthcare, and elderly care.
+                </p>
+                <div class="hero-buttons reveal delay-2">
+                    <a href="volunteer.html" class="btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        Join Our Mission
+                    </a>
+                    <a href="#services" class="btn-secondary">
+                        Explore Programs
+                    </a>
+                </div>
+                <div class="hero-stats reveal delay-3">
+                    <div class="stat-box">
+                        <h3 class="text-gradient">15K+</h3>
+                        <p>Lives Impacted</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 class="text-gradient">500+</h3>
+                        <p>Active Volunteers</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 class="text-gradient">50+</h3>
+                        <p>Projects Completed</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 class="text-gradient">4.9</h3>
+                        <p>Community Rating</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual reveal">
+                <div class="visual-circle">
+                    <svg class="visual-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Preview Section -->
+    <section class="about-preview">
+        <div class="section-container">
+            <div class="about-grid">
+                <div class="about-images reveal">
+                    <div class="about-pattern"></div>
+                    <img src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=600&q=80" alt="Community" class="about-img about-img-1">
+                    <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&q=80" alt="Volunteering" class="about-img about-img-2">
+                </div>
+                <div class="reveal delay-1">
+                    <div class="section-header">
+                        <h2 class="headline-large">Who We Are</h2>
+                        <p>We are a community of changemakers dedicated to empowering the underprivileged. Our holistic approach ensures sustainable development and lasting impact.</p>
+                    </div>
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Transparent Operations</h4>
+                                <span>100% financial transparency with regular audits.</span>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Community Driven</h4>
+                                <span>Local volunteers powering global change.</span>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Proven Impact</h4>
+                                <span>Data-backed results and success stories.</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="aboutus.html" class="btn-secondary" style="display: inline-flex; margin-top: 1.5rem;">Learn More About Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="services">
+        <div class="section-container">
+            <div class="text-center reveal">
+                <h2 class="headline-large">Our Core Programs</h2>
+                <p class="text-body" style="max-width: 600px; margin: 1rem auto 0; color: var(--fg-secondary);">
+                    Focused initiatives designed to address critical social challenges with precision and compassion.
+                </p>
+            </div>
+
+            <div class="services-grid">
+                <!-- Organ Donation -->
+                <div class="service-card reveal">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <h3>OrganSync Program</h3>
+                    <p>Comprehensive awareness campaigns, donor registration drives, and family counseling to save lives through organ donation.</p>
+                    <a href="organ.html" class="service-link">
+                        Explore Program <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div>
+
+                <!-- Education -->
+                <div class="service-card reveal delay-1">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    </div>
+                    <h3>Education Support</h3>
+                    <p>Providing scholarships, learning materials, and mentorship to underprivileged children to build a brighter future.</p>
+                    <a href="education.html" class="service-link">
+                        Apply for Support <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div>
+
+                <!-- Elder Care -->
+                <div class="service-card reveal delay-2">
+                    <div class="service-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                    <h3>Elder Care Homes</h3>
+                    <p>Safe, dignified living spaces for senior citizens with medical support, nutritious meals, and emotional care.</p>
+                    <a href="vruddhashram.html" class="service-link">
+                        Visit Homes <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Stats Section -->
+    <section class="impact-section">
+        <div class="section-container">
+            <div class="text-center reveal">
+                <h2 class="headline-large">Our Impact in Numbers</h2>
+                <p style="color: var(--fg-muted);">Measuring our progress towards a better world.</p>
+            </div>
+            <div class="impact-grid">
+                <div class="impact-card reveal">
+                    <div class="impact-number" data-count="1200">0</div>
+                    <div class="impact-label">Volunteers</div>
+                </div>
+                <div class="impact-card reveal delay-1">
+                    <div class="impact-number" data-count="3500">0</div>
+                    <div class="impact-label">Lives Saved</div>
+                </div>
+                <div class="impact-card reveal delay-2">
+                    <div class="impact-number" data-count="50">0</div>
+                    <div class="impact-label">Partner NGOs</div>
+                </div>
+                <div class="impact-card reveal delay-3">
+                    <div class="impact-number" data-count="15">0</div>
+                    <div class="impact-label">Years Active</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="section-container">
+            <div class="text-center reveal">
+                <h2 class="headline-large">Words of Hope</h2>
+                <p style="color: var(--fg-muted);">Stories from those we've touched.</p>
+            </div>
+            
+            <div class="testimonial-slider reveal">
+                <div class="testimonial-track" id="testimonialTrack">
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">"SONVI gave my son a second chance at life through their education scholarship program. Forever grateful."</p>
+                            <div class="testimonial-author">Priya Mehta</div>
+                            <div class="testimonial-role">Parent & Beneficiary</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">"Volunteering here changed my perspective. It's not just about giving; it's about growing together as a community."</p>
+                            <div class="testimonial-author">Rahul Kumar</div>
+                            <div class="testimonial-role">Active Volunteer</div>
+                        </div>
+                    </div>
+                    <div class="testimonial-slide">
+                        <div class="testimonial-card">
+                            <p class="testimonial-text">"The Elder Care facility is top-notch. My father is happier there than he has been in years. Thank you, SONVI."</p>
+                            <div class="testimonial-author">Anjali Deshmukh</div>
+                            <div class="testimonial-role">Family Member</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slider-dots">
+                    <div class="dot active" data-index="0"></div>
+                    <div class="dot" data-index="1"></div>
+                    <div class="dot" data-index="2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content reveal">
+            <h2 class="headline-large cta-title">Ready to Make a Difference?</h2>
+            <p class="cta-text">Join hands with us. Your small step today creates a giant leap for someone tomorrow.</p>
+            <a href="volunteer.html" class="btn-white">
+                Become a Volunteer
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Transforming Lives with Compassion</p>
+    </footer>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // PRELOADER & INIT
+        // ═══════════════════════════════════════════════════════════════
+        const preloader = document.getElementById('preloader');
+        window.addEventListener('load', () => {
+            setTimeout(() => { preloader.classList.add('hidden'); }, 2000);
+            createParticles();
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // NAVBAR
+        // ═══════════════════════════════════════════════════════════════
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // PARTICLES GENERATION
+        // ═══════════════════════════════════════════════════════════════
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for(let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                // Randomize color between teal and amber
+                particle.style.background = Math.random() > 0.5 ? 'var(--accent-primary)' : 'var(--accent-secondary)';
+                container.appendChild(particle);
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SCROLL REVEAL
+        // ═══════════════════════════════════════════════════════════════
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('revealed');
+            });
+        }, { threshold: 0.1 });
+        reveals.forEach(el => revealObserver.observe(el));
+
+        // ═══════════════════════════════════════════════════════════════
+        // COUNTER ANIMATION
+        // ═══════════════════════════════════════════════════════════════
+        const counters = document.querySelectorAll('.impact-number');
+        let countersAnimated = false;
+
+        function animateCounters() {
+            if (countersAnimated) return;
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current).toLocaleString() + '+';
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target.toLocaleString() + '+';
+                    }
+                };
+                updateCounter();
+            });
+            countersAnimated = true;
+        }
+
+        const impactSection = document.querySelector('.impact-section');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+        if (impactSection) counterObserver.observe(impactSection);
+
+        // ═══════════════════════════════════════════════════════════════
+        // TESTIMONIAL SLIDER
+        // ═══════════════════════════════════════════════════════════════
+        const track = document.getElementById('testimonialTrack');
+        const dots = document.querySelectorAll('.dot');
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function goToSlide(index) {
+            currentSlide = index;
+            track.style.transform = `translateX(-${index * 33.333}%)`;
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+        }
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                goToSlide(parseInt(dot.dataset.index));
+            });
+        });
+
+        // Auto-slide
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }, 5000);
+
+    </script>
+</body>
+</html>

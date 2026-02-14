@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Camps & Medical Aid | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6; /* Teal */
+            --accent-secondary: #ef4444; /* Red for Medical */
+            --accent-tertiary: #f59e0b; /* Amber */
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; scrollbar-width: thin; scrollbar-color: var(--accent-primary) var(--bg-primary); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--fg-primary); line-height: 1.6; overflow-x: hidden; }
+        
+        /* Background */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(239, 68, 68, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(20, 184, 166, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.01em; }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); }
+        .nav-link:hover { color: var(--fg-primary); }
+        .nav-link.active { color: var(--accent-primary); }
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           HERO SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .hero { min-height: 70vh; display: flex; align-items: center; position: relative; overflow: hidden; }
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; filter: brightness(0.7); }
+        .hero-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(10, 15, 26, 0.5) 0%, var(--bg-primary) 100%); }
+        .hero-content { max-width: 1400px; margin: 0 auto; padding: 8rem 2rem 4rem; text-align: center; z-index: 2; width: 100%; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           INTRO SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .intro-section { padding: 4rem 2rem; position: relative; margin-top: -80px; z-index: 3; }
+        .section-container { max-width: 1200px; margin: 0 auto; }
+        
+        .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .intro-content h2 { margin-bottom: 1.5rem; }
+        .intro-content p { color: var(--fg-secondary); margin-bottom: 1.5rem; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem; }
+        .stat-box { text-align: center; padding: 1.5rem; background: rgba(20, 184, 166, 0.05); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); }
+        .stat-box h3 { font-size: 2rem; color: var(--accent-primary); font-family: 'Playfair Display', serif; }
+        .stat-box p { font-size: 0.85rem; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CAMP TYPES GRID
+           ═══════════════════════════════════════════════════════════════ */
+        .camps-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        
+        .camps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .camp-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); padding: 2rem; text-align: center;
+            transition: var(--transition-base); position: relative; overflow: hidden;
+        }
+        .camp-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-secondary); transform: scaleX(0); transition: var(--transition-base); }
+        .camp-card:hover::before { transform: scaleX(1); background: var(--accent-primary); }
+        .camp-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: rgba(20, 184, 166, 0.3); }
+        
+        .camp-icon {
+            width: 70px; height: 70px; margin: 0 auto 1.5rem;
+            background: rgba(239, 68, 68, 0.1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent-secondary); transition: var(--transition-base);
+        }
+        .camp-card:hover .camp-icon { background: var(--accent-primary); color: white; transform: scale(1.1); }
+        .camp-icon svg { width: 32px; height: 32px; }
+        
+        .camp-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .camp-card p { font-size: 0.9rem; color: var(--fg-secondary); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           SCHEDULE TABLE
+           ═══════════════════════════════════════════════════════════════ */
+        .schedule-section { padding: 6rem 2rem; position: relative; }
+        .schedule-table { width: 100%; border-collapse: collapse; margin-top: 2rem; }
+        .schedule-table th, .schedule-table td { padding: 1.25rem 1.5rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        .schedule-table th { color: var(--fg-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; background: rgba(255,255,255,0.02); }
+        .schedule-table tr:hover td { background: rgba(20, 184, 166, 0.03); }
+        .status-badge { padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+        .status-upcoming { background: rgba(20, 184, 166, 0.1); color: var(--accent-primary); }
+        .status-completed { background: rgba(100, 116, 139, 0.1); color: var(--fg-muted); }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           VOLUNTEER CTA (Medical Specific)
+           ═══════════════════════════════════════════════════════════════ */
+        .cta-medical {
+            padding: 6rem 2rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--bg-secondary));
+            border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+            text-align: center;
+        }
+        .cta-medical h2 { margin-bottom: 1rem; }
+        .cta-medical p { color: var(--fg-secondary); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        
+        /* ═══════════════════════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════════════════════ */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--glass-border); padding: 3rem 2rem; text-align: center; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .intro-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .stats-row { grid-template-columns: 1fr; }
+            .schedule-table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
+        
+        /* Reveal Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="services.html" class="nav-link">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="services.html">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg">
+            <img src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=1200&q=80" alt="Health Camp Hero">
+        </div>
+        <div class="hero-content">
+            <h1 class="headline-large">Healthcare at Your <span class="text-gradient">Doorstep</span></h1>
+            <p style="font-size: 1.125rem; color: var(--fg-secondary); max-width: 600px; margin: 1rem auto 0;">
+                Bridging the gap between rural communities and quality medical services through free health camps and awareness drives.
+            </p>
+        </div>
+    </header>
+
+    <!-- Intro Section -->
+    <section class="intro-section">
+        <div class="section-container">
+            <div class="intro-grid">
+                <div class="reveal">
+                    <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&q=80" alt="Medical Camp" style="width: 100%; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+                </div>
+                <div class="reveal">
+                    <h2 class="headline-large">Medical Outreach Program</h2>
+                    <p>Access to healthcare is a fundamental right, yet millions in rural India go untreated due to lack of infrastructure and awareness. SONVI's Health Camp initiative brings doctors, medicines, and diagnostic tools directly to underserved villages.</p>
+                    <p>We collaborate with district hospitals and private practitioners to organize free check-up camps focusing on preventative care and early diagnosis.</p>
+                    
+                    <div class="stats-row">
+                        <div class="stat-box">
+                            <h3>150+</h3>
+                            <p>Camps Organized</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>25K+</h3>
+                            <p>Patients Treated</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>500+</h3>
+                            <p>Villages Reached</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Camp Types -->
+    <section class="camps-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Our Focus Areas</h2>
+                <p style="color: var(--fg-muted);">Comprehensive care for all age groups.</p>
+            </div>
+
+            <div class="camps-grid">
+                <!-- General Health -->
+                <div class="camp-card reveal">
+                    <div class="camp-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <h3>General Health</h3>
+                    <p>Routine check-ups, BP & Sugar monitoring, and distribution of basic medicines for common ailments.</p>
+                </div>
+                
+                <!-- Eye Care -->
+                <div class="camp-card reveal">
+                    <div class="camp-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
+                    <h3>Eye & Vision</h3>
+                    <p>Vision testing, distribution of free spectacles, and cataract detection camps for the elderly.</p>
+                </div>
+
+                <!-- Dental -->
+                <div class="camp-card reveal">
+                    <div class="camp-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                    </div>
+                    <h3>Dental Hygiene</h3>
+                    <p>Dental check-ups, cleaning, and awareness sessions on oral hygiene for school children.</p>
+                </div>
+
+                <!-- Women's Health -->
+                <div class="camp-card reveal">
+                    <div class="camp-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <h3>Women & Child</h3>
+                    <p>Prenatal care, nutrition guidance, and vaccination drives for mothers and infants.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schedule Section -->
+    <section class="schedule-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Camp Schedule</h2>
+                <p style="color: var(--fg-muted);">Find a camp near you.</p>
+            </div>
+            
+            <div class="reveal">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Village / Location</th>
+                            <th>Camp Type</th>
+                            <th>Partner</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Oct 25, 2024</td>
+                            <td>Govindpur Village</td>
+                            <td>General Medical</td>
+                            <td>District Hospital</td>
+                            <td><span class="status-badge status-upcoming">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td>Nov 02, 2024</td>
+                            <td>Rampur Primary School</td>
+                            <td>Eye Check-up</td>
+                            <td>HelpAge India</td>
+                            <td><span class="status-badge status-upcoming">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td>Nov 15, 2024</td>
+                            <td>SONVI Community Hall</td>
+                            <td>Dental Hygiene</td>
+                            <td>Private Practitioners</td>
+                            <td><span class="status-badge status-upcoming">Upcoming</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sep 10, 2024</td>
+                            <td>Lakshmipur</td>
+                            <td>Women's Health</td>
+                            <td>State Health Dept</td>
+                            <td><span class="status-badge status-completed">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Medical Volunteer CTA -->
+    <section class="cta-medical">
+        <div class="reveal">
+            <h2 class="headline-large">Are You a Medical Professional?</h2>
+            <p>We are always looking for doctors, nurses, and paramedics to join our outreach teams. Donate your time and skills to save lives.</p>
+            <a href="volunteer.html" class="btn-white" style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);">
+                Join Medical Corps
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.15 });
+        reveals.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>

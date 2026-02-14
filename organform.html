@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organ Donor Registration | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6; /* Teal */
+            --accent-secondary: #f59e0b; /* Amber */
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; font-size: 16px; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Background */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION (Consistent)
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); }
+        .nav-link:hover { color: var(--fg-primary); }
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MAIN LAYOUT
+           ═══════════════════════════════════════════════════════════════ */
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 7rem 2rem 4rem;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 800px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-header {
+            padding: 2rem;
+            background: rgba(20, 184, 166, 0.05);
+            text-align: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PROGRESS STEPS
+           ═══════════════════════════════════════════════════════════════ */
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .progress-container::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--glass-border);
+            z-index: 0;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .step-indicator {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-primary);
+            border: 2px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 700;
+            color: var(--fg-muted);
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.active .step-circle {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .step-indicator.completed .step-circle {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .step-indicator.active .step-label {
+            color: var(--fg-primary);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FORM STEPS
+           ═══════════════════════════════════════════════════════════════ */
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--fg-primary);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition-base);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ORGAN SELECTION GRID
+           ═══════════════════════════════════════════════════════════════ */
+        .organ-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .organ-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .organ-card input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .organ-card:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .organ-card.selected {
+            border-color: var(--accent-primary);
+            background: rgba(20, 184, 166, 0.1);
+        }
+
+        .organ-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .organ-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            transition: var(--transition-base);
+        }
+
+        .organ-card.selected .organ-icon {
+            filter: grayscale(0%);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .organ-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--fg-secondary);
+            transition: var(--transition-base);
+        }
+
+        .organ-card.selected .organ-name {
+            color: var(--fg-primary);
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-prev {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--fg-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-prev:hover { background: rgba(255, 255, 255, 0.1); color: var(--fg-primary); }
+
+        .btn-next {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            margin-left: auto;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+
+        .btn-submit { width: 100%; justify-content: center; font-size: 1rem; padding: 1.25rem; }
+
+        /* Declaration Box */
+        .declaration-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .checkbox-label input { margin-top: 4px; width: auto; }
+
+        /* Success Modal */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 26, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-base);
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-box {
+            background: var(--bg-secondary);
+            padding: 3rem;
+            border-radius: var(--radius-xl);
+            text-align: center;
+            max-width: 450px;
+            border: 1px solid var(--glass-border);
+            transform: scale(0.8);
+            transition: var(--transition-base);
+        }
+
+        .success-overlay.active .success-box { transform: scale(1); }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: #10b981;
+        }
+
+        .donor-id {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            display: inline-block;
+            margin-top: 1rem;
+            font-family: monospace;
+            color: var(--accent-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .form-grid { grid-template-columns: 1fr; }
+            .organ-grid { grid-template-columns: repeat(2, 1fr); }
+            .progress-container { margin-bottom: 2rem; }
+            .step-label { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="education.html" class="nav-link">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="education.html">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="form-card">
+            
+            <!-- Header -->
+            <div class="form-header">
+                <h2 style="font-size: 1.75rem;">Organ Donor <span class="text-gradient">Registration</span></h2>
+                <p style="color: var(--fg-muted); font-size: 0.9rem; margin-top: 0.5rem;">Your decision today can save up to 8 lives.</p>
+            </div>
+
+            <!-- Body -->
+            <div class="form-body">
+                
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-line" id="progressLine"></div>
+                    
+                    <div class="step-indicator active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">Personal</div>
+                    </div>
+                    <div class="step-indicator" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Selection</div>
+                    </div>
+                    <div class="step-indicator" data-step="3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Confirm</div>
+                    </div>
+                </div>
+
+                <form id="organForm">
+                    
+                    <!-- Step 1: Personal Info -->
+                    <div class="form-step active" id="step1">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" class="form-input" id="name" placeholder="Enter your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="form-input" id="email" placeholder="example@mail.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" class="form-input" id="dob" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            <select class="form-input" id="bloodGroup" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-next" onclick="nextStep(1)">Next Step →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Organ Selection -->
+                    <div class="form-step" id="step2">
+                        <label style="margin-bottom: 1rem; display: block; font-weight: 600;">Select Organs to Donate</label>
+                        <p style="font-size: 0.85rem; color: var(--fg-muted); margin-bottom: 1.5rem;">Select all that apply. You can select multiple organs.</p>
+                        
+                        <div class="organ-grid" id="organGrid">
+                            <!-- Heart -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Heart">
+                                <span class="organ-icon">❤️</span>
+                                <span class="organ-name">Heart</span>
+                            </label>
+                            <!-- Kidney -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Kidney">
+                                <span class="organ-icon">🫘</span>
+                                <span class="organ-name">Kidney</span>
+                            </label>
+                            <!-- Liver -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Liver">
+                                <span class="organ-icon">🫁</span>
+                                <span class="organ-name">Liver</span>
+                            </label>
+                            <!-- Lungs -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Lungs">
+                                <span class="organ-icon">🌬️</span>
+                                <span class="organ-name">Lungs</span>
+                            </label>
+                            <!-- Eyes -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Eyes">
+                                <span class="organ-icon">👁️</span>
+                                <span class="organ-name">Eyes</span>
+                            </label>
+                            <!-- Skin -->
+                            <label class="organ-card">
+                                <input type="checkbox" name="organs" value="Skin">
+                                <span class="organ-icon">🤲</span>
+                                <span class="organ-name">Skin</span>
+                            </label>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-prev" onclick="prevStep(2)">← Back</button>
+                            <button type="button" class="btn btn-next" onclick="nextStep(2)">Next Step →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Medical & Agreement -->
+                    <div class="form-step" id="step3">
+                        <div class="form-group">
+                            <label>Additional Medical Information (Optional)</label>
+                            <textarea class="form-input" id="medicalInfo" rows="4" placeholder="Any existing conditions or notes..."></textarea>
+                        </div>
+
+                        <div class="declaration-box">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="agree" required>
+                                <span style="font-size: 0.9rem; color: var(--fg-secondary);">
+                                    I voluntarily agree to donate my organs. I confirm that the information provided is accurate to the best of my knowledge. I understand that this decision can save lives.
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-prev" onclick="prevStep(3)">← Back</button>
+                            <button type="submit" class="btn btn-next btn-submit">
+                                Submit Pledge 🫀
+                            </button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-box">
+            <div class="success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Thank You!</h3>
+            <p style="color: var(--fg-muted); margin-bottom: 0.5rem;">Your pledge has been registered.</p>
+            <p style="font-size: 0.9rem; color: var(--fg-secondary);">Donor ID:</p>
+            <div class="donor-id" id="donorIdDisplay">SONVI-ORG-XXXX</div>
+            <br>
+            <button onclick="closeModal()" class="btn btn-next" style="width: 100%;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // NAVBAR LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // MULTI-STEP FORM LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        let currentStep = 1;
+        const totalSteps = 3;
+        const progressLine = document.getElementById('progressLine');
+        const indicators = document.querySelectorAll('.step-indicator');
+
+        function updateProgress() {
+            // Update Line
+            let percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progressLine.style.width = percentage + '%';
+
+            // Update Indicators
+            indicators.forEach((indicator, index) => {
+                const circle = indicator.querySelector('.step-circle');
+                if (index + 1 < currentStep) {
+                    indicator.classList.add('completed');
+                    indicator.classList.remove('active');
+                    circle.innerHTML = '✓';
+                } else if (index + 1 === currentStep) {
+                    indicator.classList.add('active');
+                    indicator.classList.remove('completed');
+                    circle.innerHTML = index + 1;
+                } else {
+                    indicator.classList.remove('active', 'completed');
+                    circle.innerHTML = index + 1;
+                }
+            });
+
+            // Show/Hide Steps
+            document.querySelectorAll('.form-step').forEach((step, index) => {
+                if (index + 1 === currentStep) step.classList.add('active');
+                else step.classList.remove('active');
+            });
+        }
+
+        function nextStep(current) {
+            // Simple Validation for current step
+            const currentStepEl = document.getElementById('step' + current);
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+            let valid = true;
+
+            inputs.forEach(input => {
+                if (!input.value || (input.type === 'checkbox' && !input.checked)) {
+                    input.style.borderColor = '#ef4444'; // Red border
+                    valid = false;
+                } else {
+                    input.style.borderColor = '';
+                }
+            });
+
+            // Specific validation for Step 2 (Organ Selection)
+            if (current === 2) {
+                const checkedOrgans = document.querySelectorAll('input[name="organs"]:checked');
+                if (checkedOrgans.length === 0) {
+                    alert("Please select at least one organ to donate.");
+                    return;
+                }
+            }
+
+            if (valid && current < totalSteps) {
+                currentStep++;
+                updateProgress();
+            }
+        }
+
+        function prevStep(current) {
+            if (current > 1) {
+                currentStep--;
+                updateProgress();
+            }
+        }
+
+        // Click on Progress Indicator (optional navigation)
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const step = parseInt(indicator.dataset.step);
+                // Only allow going back or to completed steps
+                if (step <= currentStep) {
+                    currentStep = step;
+                    updateProgress();
+                }
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // ORGAN CARD SELECTION UI
+        // ═══════════════════════════════════════════════════════════════
+        const organCards = document.querySelectorAll('.organ-card');
+        organCards.forEach(card => {
+            card.addEventListener('change', () => {
+                if (card.querySelector('input').checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // FORM SUBMISSION & LOCALSTORAGE
+        // ═══════════════════════════════════════════════════════════════
+        const form = document.getElementById('organForm');
+        const successOverlay = document.getElementById('successOverlay');
+        const donorIdDisplay = document.getElementById('donorIdDisplay');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Gather Data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const dob = document.getElementById('dob').value;
+            const bloodGroup = document.getElementById('bloodGroup').value;
+            const medicalInfo = document.getElementById('medicalInfo').value;
+
+            // Get Selected Organs
+            const organs = [];
+            document.querySelectorAll('input[name="organs"]:checked').forEach(cb => {
+                organs.push(cb.value);
+            });
+
+            // Generate Donor ID
+            const donorId = 'SONVI-ORG-' + Math.floor(Math.random() * 90000 + 10000);
+
+            // Create Object
+            const submission = {
+                id: donorId,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleDateString(),
+                name: name,
+                email: email,
+                phone: phone,
+                dob: dob,
+                bloodGroup: bloodGroup,
+                organs: organs.join(', '),
+                medicalInfo: medicalInfo,
+                status: 'Pending'
+            };
+
+            // Save to LocalStorage
+            let submissions = JSON.parse(localStorage.getItem('sonvi_organ_submissions') || '[]');
+            submissions.push(submission);
+            localStorage.setItem('sonvi_organ_submissions', JSON.stringify(submissions));
+
+            // Show Success
+            donorIdDisplay.textContent = donorId;
+            successOverlay.classList.add('active');
+        });
+
+        function closeModal() {
+            successOverlay.classList.remove('active');
+            form.reset();
+            currentStep = 1;
+            updateProgress();
+            // Reset Organ Cards UI
+            organCards.forEach(card => card.classList.remove('selected'));
+        }
+
+    </script>
+</body>
+</html>

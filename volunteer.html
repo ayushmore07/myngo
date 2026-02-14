@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Registration | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6;
+            --accent-secondary: #f59e0b;
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar { width: 10px; }
+        html::-webkit-scrollbar-track { background: var(--bg-primary); }
+        html::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary)); border-radius: 5px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PRELOADER
+           ═══════════════════════════════════════════════════════════════ */
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary);
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            z-index: 10000;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .preloader-logo {
+            font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 2rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .preloader-bar { width: 200px; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; }
+        .preloader-bar::after {
+            content: ''; display: block; width: 0; height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            animation: loading 2s ease-out forwards;
+        }
+        @keyframes loading { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); } 50% { filter: drop-shadow(0 0 25px var(--accent-glow)); } }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ANIMATED BACKGROUND
+           ═══════════════════════════════════════════════════════════════ */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.03; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════════════════════════ */
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; color: var(--fg-primary); }
+        .headline-display { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.01em; }
+        .headline-medium { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; }
+        .text-body { font-size: 1rem; line-height: 1.7; color: var(--fg-secondary); }
+        .text-body-large { font-size: 1.125rem; line-height: 1.8; color: var(--fg-secondary); }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-container:hover .logo-icon { transform: scale(1.05) rotate(-5deg); }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        .logo-container:hover .logo-text { color: var(--accent-primary); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); border-radius: var(--radius-sm); }
+        .nav-link::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); transition: var(--transition-base); transform: translateX(-50%); }
+        .nav-link:hover { color: var(--fg-primary); background: rgba(255, 255, 255, 0.05); }
+        .nav-link:hover::before { width: calc(100% - 2rem); }
+        .nav-link.active { color: var(--accent-primary); }
+        .nav-link.active::before { width: calc(100% - 2rem); }
+        
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3); }
+
+        /* Mobile Menu */
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; transform: translateY(20px); opacity: 0; transition: var(--transition-base); }
+        .mobile-nav.active a { transform: translateY(0); opacity: 1; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           HERO SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .hero {
+            min-height: 60vh; display: flex; align-items: center;
+            position: relative; padding: 10rem 2rem 6rem; overflow: hidden;
+        }
+        .hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .hero-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; filter: brightness(0.8); }
+        .hero-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(10, 15, 26, 0.5) 0%, var(--bg-primary) 100%); }
+        .hero-content { max-width: 800px; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           BENEFITS SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .benefits-section { padding: 6rem 2rem; position: relative; }
+        .section-container { max-width: 1400px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        
+        .benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .benefit-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+            padding: 2rem; text-align: center; transition: var(--transition-base);
+            position: relative; overflow: hidden;
+        }
+        .benefit-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); transform: scaleX(0); transition: var(--transition-base); }
+        .benefit-card:hover::before { transform: scaleX(1); }
+        .benefit-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: rgba(20, 184, 166, 0.3); }
+        
+        .benefit-icon { width: 60px; height: 60px; margin: 0 auto 1.5rem; background: rgba(20, 184, 166, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent-primary); transition: var(--transition-base); }
+        .benefit-card:hover .benefit-icon { background: var(--accent-primary); color: white; transform: scale(1.1); }
+        .benefit-icon svg { width: 28px; height: 28px; }
+        .benefit-card h3 { margin-bottom: 0.75rem; font-size: 1.25rem; }
+        .benefit-card p { color: var(--fg-secondary); font-size: 0.95rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FORM SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .form-section { padding: 4rem 2rem 8rem; position: relative; }
+        .form-container { max-width: 800px; margin: 0 auto; position: relative; }
+        
+        /* Progress Steps */
+        .progress-bar {
+            display: flex; justify-content: space-between; margin-bottom: 3rem;
+            position: relative; z-index: 1;
+        }
+        .progress-bar::before {
+            content: ''; position: absolute; top: 20px; left: 0; width: 100%; height: 2px;
+            background: var(--glass-border); z-index: -1;
+        }
+        .progress-line {
+            position: absolute; top: 20px; left: 0; width: 0%; height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transition: width 0.5s ease; z-index: -1;
+        }
+        .step {
+            text-align: center; cursor: pointer; transition: var(--transition-base);
+        }
+        .step-circle {
+            width: 40px; height: 40px; border-radius: 50%; background: var(--bg-secondary);
+            border: 2px solid var(--glass-border); margin: 0 auto 0.5rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: var(--fg-muted); transition: var(--transition-base);
+        }
+        .step.active .step-circle { border-color: var(--accent-primary); color: var(--accent-primary); background: rgba(20, 184, 166, 0.1); }
+        .step.completed .step-circle { background: var(--accent-primary); border-color: var(--accent-primary); color: white; }
+        .step-label { font-size: 0.85rem; color: var(--fg-muted); transition: var(--transition-base); }
+        .step.active .step-label { color: var(--fg-primary); font-weight: 500; }
+
+        /* Form Wrapper */
+        .form-wrapper {
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-xl);
+            padding: 3rem; position: relative; overflow: hidden; min-height: 600px;
+        }
+        
+        /* Form Steps Content */
+        .form-step { display: none; animation: fadeIn 0.5s ease forwards; }
+        .form-step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        .form-header { margin-bottom: 2.5rem; text-align: center; }
+        .form-header h2 { margin-bottom: 0.5rem; }
+        .form-header p { color: var(--fg-muted); }
+
+        .form-group { position: relative; margin-bottom: 1.5rem; }
+        .form-input {
+            width: 100%; padding: 1.25rem 1rem 1rem 3rem; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+            color: var(--fg-primary); font-family: 'Inter', sans-serif; font-size: 1rem;
+            transition: var(--transition-base);
+        }
+        .form-input:focus { outline: none; border-color: var(--accent-primary); background: rgba(255, 255, 255, 0.05); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1); }
+        .form-input:focus + .form-label, .form-input:not(:placeholder-shown) + .form-label { top: 0.5rem; font-size: 0.75rem; color: var(--accent-primary); background: var(--bg-secondary); padding: 0 0.5rem; left: 2.5rem; }
+        
+        .form-label {
+            position: absolute; left: 3rem; top: 1.25rem; color: var(--fg-muted);
+            pointer-events: none; transition: var(--transition-base); font-size: 0.9rem;
+        }
+        .form-icon {
+            position: absolute; left: 1rem; top: 1.2rem; color: var(--fg-muted); transition: var(--transition-base);
+        }
+        .form-input:focus ~ .form-icon { color: var(--accent-primary); }
+
+        textarea.form-input { min-height: 100px; resize: vertical; padding-top: 1.5rem; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        
+        /* Radio & Checkbox Styles */
+        .option-group { display: flex; gap: 1.5rem; margin-top: 0.5rem; }
+        .option-item { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .option-item input { display: none; }
+        .option-custom {
+            width: 20px; height: 20px; border: 2px solid var(--glass-border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: var(--transition-base);
+        }
+        .option-custom::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; opacity: 0; transition: var(--transition-base); }
+        .option-item input:checked + .option-custom { border-color: var(--accent-primary); background: var(--accent-primary); }
+        .option-item input:checked + .option-custom::after { opacity: 1; }
+        .option-item span { font-size: 0.9rem; color: var(--fg-secondary); }
+
+        /* Buttons */
+        .form-buttons { display: flex; justify-content: space-between; margin-top: 2.5rem; gap: 1rem; }
+        .btn {
+            padding: 1rem 2rem; border-radius: var(--radius-md); font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: var(--transition-base); border: none;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-prev { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--fg-primary); }
+        .btn-prev:hover { background: rgba(255,255,255,0.05); }
+        .btn-next { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3); margin-left: auto; }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4); }
+        
+        .submit-btn { width: 100%; justify-content: center; }
+
+        /* Success Message */
+        .success-message {
+            display: none; text-align: center; padding: 4rem 2rem; animation: fadeIn 0.5s ease forwards;
+        }
+        .success-icon { width: 60px; height: 60px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; color: #10b981; }
+        .success-message h3 { color: #10b981; margin-bottom: 0.5rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════════════════════ */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--glass-border); padding: 3rem 2rem; text-align: center; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .form-row { grid-template-columns: 1fr; }
+            .form-wrapper { padding: 1.5rem; }
+            .progress-bar { display: none; } /* Hide progress on mobile for simplicity or restyle */
+        }
+
+        /* Reveal Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* Accessibility */
+        :focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SONVI NGO</div>
+        <div class="preloader-bar"></div>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="#" class="nav-link">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link active">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="#">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg">
+            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=1200&q=80" alt="Volunteers">
+        </div>
+        <div class="hero-content reveal">
+            <h1 class="headline-display">Be the <span class="text-gradient">Change</span></h1>
+            <p class="text-body-large" style="color: var(--fg-secondary); max-width: 600px; margin: 1rem auto 0;">
+                Your time and skills can transform lives. Join our community of changemakers and help us build a better tomorrow.
+            </p>
+        </div>
+    </header>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Why Volunteer With Us?</h2>
+                <p class="text-body" style="max-width: 600px; margin: 1rem auto 0;">Gain valuable experience, make lifelong connections, and create tangible impact.</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card reveal">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <h3>Community</h3>
+                    <p>Join a passionate network of over 500 volunteers working towards a common goal.</p>
+                </div>
+                <div class="benefit-card reveal reveal-delay-1">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <h3>Growth</h3>
+                    <p>Develop leadership skills and gain hands-on experience in social work and NGO operations.</p>
+                </div>
+                <div class="benefit-card reveal reveal-delay-2">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <h3>Impact</h3>
+                    <p>See the direct result of your efforts in the lives of the communities we serve.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section">
+        <div class="form-container reveal">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-line" id="progressLine"></div>
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Personal Info</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Interests</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Emergency</div>
+                </div>
+            </div>
+
+            <div class="form-wrapper">
+                <form id="volunteerForm">
+                    
+                    <!-- Step 1: Personal Info -->
+                    <div class="form-step active" id="step1">
+                        <div class="form-header">
+                            <h2 class="headline-medium">Personal Details</h2>
+                            <p>Let's start with some basic information.</p>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="fullname" placeholder=" " required>
+                                <label class="form-label" for="fullname">Full Name</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" class="form-input" id="email" placeholder=" " required>
+                                <label class="form-label" for="email">Email Address</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="tel" class="form-input" id="phone" placeholder=" " required>
+                                <label class="form-label" for="phone">Phone Number</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            </div>
+                            <div class="form-group">
+                                <input type="number" class="form-input" id="age" placeholder=" " required>
+                                <label class="form-label" for="age">Age</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label style="position: relative; left: 0; top: 0; color: var(--fg-muted); margin-bottom: 0.5rem; display: block;">Gender</label>
+                            <div class="option-group">
+                                <label class="option-item"><input type="radio" name="gender" value="Male" required><span class="option-custom"></span><span>Male</span></label>
+                                <label class="option-item"><input type="radio" name="gender" value="Female"><span class="option-custom"></span><span>Female</span></label>
+                                <label class="option-item"><input type="radio" name="gender" value="Other"><span class="option-custom"></span><span>Other</span></label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="address" placeholder=" " required>
+                            <label class="form-label" for="address">Full Address</label>
+                            <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-next" onclick="nextStep(1)">Next Step <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Interests -->
+                    <div class="form-step" id="step2">
+                        <div class="form-header">
+                            <h2 class="headline-medium">Your Preferences</h2>
+                            <p>Tell us how you'd like to contribute.</p>
+                        </div>
+                        <div class="form-group">
+                            <label style="color: var(--fg-muted); margin-bottom: 0.5rem; display: block;">Area of Interest</label>
+                            <select class="form-input" style="padding-left: 1rem;" id="area" required>
+                                <option value="" disabled selected>Select Area</option>
+                                <option value="Organ Donation">Organ Donation Awareness</option>
+                                <option value="Education Support">Education Support</option>
+                                <option value="Elderly Care">Vruddhashram Care</option>
+                                <option value="Events">Event Management</option>
+                                <option value="Admin">Admin & Logistics</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-input" id="why" placeholder=" " required></textarea>
+                            <label class="form-label" for="why" style="top: 1.5rem;">Why do you want to join SONVI?</label>
+                            <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="top: 1.5rem;"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-input" id="experience" placeholder=" "></textarea>
+                            <label class="form-label" for="experience" style="top: 1.5rem;">Previous Experience (Optional)</label>
+                            <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="top: 1.5rem;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-prev" onclick="prevStep(2)">Back</button>
+                            <button type="button" class="btn btn-next" onclick="nextStep(2)">Next Step <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Emergency -->
+                    <div class="form-step" id="step3">
+                        <div class="form-header">
+                            <h2 class="headline-medium">Emergency Contact</h2>
+                            <p>For safety purposes, we need an emergency contact.</p>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="emergency_name" placeholder=" " required>
+                                <label class="form-label" for="emergency_name">Contact Name</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-input" id="relation" placeholder=" " required>
+                                <label class="form-label" for="relation">Relationship</label>
+                                <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="tel" class="form-input" id="emergency_phone" placeholder=" " required>
+                            <label class="form-label" for="emergency_phone">Emergency Phone</label>
+                            <svg class="form-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-input" id="medical" placeholder=" "></textarea>
+                            <label class="form-label" for="medical" style="top: 1.5rem;">Medical Conditions (Optional)</label>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="option-item" style="align-items: flex-start;">
+                                <input type="checkbox" required style="margin-top: 3px;">
+                                <span class="option-custom" style="border-radius: 4px; flex-shrink: 0;"></span>
+                                <span style="font-size: 0.85rem; line-height: 1.4;">I declare that the information provided is true and I agree to follow the NGO guidelines and code of conduct.</span>
+                            </label>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-prev" onclick="prevStep(3)">Back</button>
+                            <button type="submit" class="btn btn-next submit-btn">Submit Application <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message">
+                    <div class="success-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <h3 class="headline-medium">Application Submitted!</h3>
+                    <p class="text-body" style="margin-top: 1rem;">Thank you for your interest in joining SONVI NGO. Our team will review your application and contact you shortly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Serving Humanity with Compassion</p>
+    </footer>
+
+    <script>
+        // Preloader
+        const preloader = document.getElementById('preloader');
+        window.addEventListener('load', () => {
+            setTimeout(() => { preloader.classList.add('hidden'); }, 2000);
+        });
+
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // Mobile Menu
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('revealed');
+            });
+        }, { threshold: 0.1 });
+        reveals.forEach(el => revealObserver.observe(el));
+
+        // ═══════════════════════════════════════════════════════════════
+        // MULTI-STEP FORM LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        const form = document.getElementById('volunteerForm');
+        const progressLine = document.getElementById('progressLine');
+        const steps = document.querySelectorAll('.step');
+        const formSteps = document.querySelectorAll('.form-step');
+        let currentStep = 1;
+
+        function updateProgress() {
+            // Update line
+            let percentage = ((currentStep - 1) / (steps.length - 1)) * 100;
+            progressLine.style.width = percentage + '%';
+
+            // Update step indicators
+            steps.forEach((step, index) => {
+                const circle = step.querySelector('.step-circle');
+                if (index + 1 < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                    circle.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                } else if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                    circle.textContent = index + 1;
+                } else {
+                    step.classList.remove('active', 'completed');
+                    circle.textContent = index + 1;
+                }
+            });
+
+            // Update form steps visibility
+            formSteps.forEach((step, index) => {
+                if (index + 1 === currentStep) step.classList.add('active');
+                else step.classList.remove('active');
+            });
+        }
+
+        function nextStep(current) {
+            // Simple validation check for current step inputs
+            const currentFormStep = document.getElementById('step' + current);
+            const inputs = currentFormStep.querySelectorAll('input[required], select[required], textarea[required]');
+            let valid = true;
+            
+            inputs.forEach(input => {
+                if (!input.value) {
+                    input.style.borderColor = '#ef4444'; // Red border for error
+                    valid = false;
+                } else {
+                    input.style.borderColor = ''; // Reset border
+                }
+            });
+
+            if (valid) {
+                currentStep++;
+                updateProgress();
+                window.scrollTo({ top: document.querySelector('.form-container').offsetTop - 100, behavior: 'smooth' });
+            }
+        }
+
+        function prevStep(current) {
+            currentStep--;
+            updateProgress();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FORM SUBMISSION & LOCALSTORAGE (INTEGRATED FOR ADMIN)
+        // ═══════════════════════════════════════════════════════════════
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Gather Data
+            const name = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const age = document.getElementById('age').value;
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const address = document.getElementById('address').value;
+            const area = document.getElementById('area').value;
+            const why = document.getElementById('why').value;
+            const experience = document.getElementById('experience').value;
+            const emergencyName = document.getElementById('emergency_name').value;
+            const relation = document.getElementById('relation').value;
+            const emergencyPhone = document.getElementById('emergency_phone').value;
+
+            // Create Submission Object matching Admin keys
+            const submission = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                name: name,
+                email: email,
+                phone: phone,
+                age: age,
+                gender: gender,
+                address: address,
+                area: area, // Used in Admin Table
+                why: why,
+                experience: experience,
+                emergencyName: emergencyName,
+                relation: relation,
+                emergencyPhone: emergencyPhone,
+                status: 'Pending'
+            };
+
+            // Save to LocalStorage
+            let submissions = JSON.parse(localStorage.getItem('sonvi_volunteer_submissions') || '[]');
+            submissions.push(submission);
+            localStorage.setItem('sonvi_volunteer_submissions', JSON.stringify(submissions));
+
+            // Hide form steps, show success
+            document.getElementById('step3').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Update final progress bar state
+            progressLine.style.width = '100%';
+            steps.forEach(step => {
+                step.classList.add('completed');
+                step.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

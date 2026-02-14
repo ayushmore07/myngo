@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #0a0a0a;
+            --bg-card: rgba(20, 20, 20, 0.7);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6;
+            --accent-secondary: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-success: #10b981;
+            --accent-info: #3b82f6;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(15, 15, 15, 0.8);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 3px; }
+
+        /* Login Screen */
+        .login-overlay {
+            position: fixed; inset: 0; background: var(--bg-primary);
+            display: flex; justify-content: center; align-items: center; z-index: 10000;
+            background-image: radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.05), transparent 60%);
+        }
+        .login-card {
+            width: 100%; max-width: 420px; padding: 3rem;
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 24px; box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        .login-logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .login-sub { color: var(--fg-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+        .form-input {
+            width: 100%; padding: 1rem; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            color: white; font-family: 'Inter', sans-serif;
+            margin-bottom: 1rem; transition: 0.3s;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent-primary); background: rgba(0,0,0,0.5); }
+        .btn-login {
+            width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none; border-radius: 12px; color: white; font-weight: 700;
+            cursor: pointer; transition: 0.3s; font-size: 1rem;
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(20, 184, 166, 0.3); }
+
+        /* App Layout */
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color);
+            position: fixed; height: 100vh; display: flex; flex-direction: column;
+            z-index: 100; transition: transform 0.3s ease;
+        }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar-logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; }
+        .sidebar-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: white; }
+        
+        .nav-section { padding: 1rem; }
+        .nav-section-title { padding: 1rem; font-size: 0.7rem; text-transform: uppercase; color: var(--fg-muted); letter-spacing: 1px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            color: var(--fg-secondary); text-decoration: none; border-radius: 12px;
+            margin-bottom: 0.25rem; transition: 0.2s; font-size: 0.9rem;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-link.active { background: rgba(20, 184, 166, 0.1); color: var(--accent-primary); font-weight: 600; }
+        .nav-link svg { width: 18px; height: 18px; }
+
+        .sidebar-footer { margin-top: auto; padding: 1.5rem; border-top: 1px solid var(--border-color); }
+        .logout-btn { width: 100%; display: flex; align-items: center; gap: 0.75rem; background: rgba(255,255,255,0.05); padding: 0.75rem 1rem; border: none; border-radius: 12px; color: var(--fg-muted); cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
+        .logout-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 260px; background: var(--bg-primary); }
+        
+        .top-bar {
+            height: 80px; background: rgba(5,5,5,0.8); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; position: sticky; top: 0; z-index: 50;
+        }
+        .menu-btn { background: none; border: none; color: var(--fg-secondary); cursor: pointer; display: none; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+
+        .content-area { padding: 2rem; }
+
+        /* Dashboard Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; padding: 1.5rem;
+            display: flex; align-items: center; gap: 1rem;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .stat-card.volunteers::before { background: var(--accent-primary); }
+        .stat-card.education::before { background: var(--accent-info); }
+        .stat-card.organs::before { background: var(--accent-danger); }
+        .stat-card.elder::before { background: var(--accent-secondary); }
+        
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .stat-card.volunteers .stat-icon { background: rgba(20, 184, 166, 0.1); color: var(--accent-primary); }
+        .stat-card.education .stat-icon { background: rgba(59, 130, 246, 0.1); color: var(--accent-info); }
+        .stat-card.organs .stat-icon { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+        .stat-card.elder .stat-icon { background: rgba(245, 158, 11, 0.1); color: var(--accent-secondary); }
+        
+        .stat-info h3 { font-size: 2rem; font-family: 'Playfair Display', serif; color: white; }
+        .stat-info p { font-size: 0.85rem; color: var(--fg-muted); }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; overflow: hidden;
+        }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .table-title { font-size: 1.1rem; font-weight: 700; color: white; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: rgba(255,255,255,0.02); color: var(--fg-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        tr:last-child td { border-bottom: none; }
+        td { color: var(--fg-secondary); font-size: 0.9rem; }
+
+        /* Badges */
+        .badge { padding: 0.35rem 0.8rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--accent-secondary); }
+        .badge-contacted { background: rgba(59, 130, 246, 0.15); color: var(--accent-info); }
+        .badge-completed { background: rgba(16, 185, 129, 0.15); color: var(--accent-success); }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+            border: 1px solid var(--border-color); background: transparent;
+            color: var(--fg-secondary); cursor: pointer; transition: 0.2s; margin-right: 0.5rem;
+        }
+        .btn-action:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .btn-action.success:hover { border-color: var(--accent-success); color: var(--accent-success); background: rgba(16, 185, 129, 0.1); }
+        .btn-action.danger:hover { border-color: var(--accent-danger); color: var(--accent-danger); background: rgba(239, 68, 68, 0.1); }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--fg-muted); }
+        .empty-state svg { width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.3; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem;
+            padding: 1rem 1.5rem; background: var(--bg-secondary);
+            border: 1px solid var(--accent-primary);
+            border-radius: 12px; color: white; font-weight: 600;
+            transform: translateY(150%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 200; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .toast.show { transform: translateY(0); }
+
+        /* Mobile */
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); position: fixed; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .menu-btn { display: block; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .content-area { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-logo">SONVI</div>
+            <div class="login-sub">Administration Portal</div>
+            <form id="loginForm">
+                <input type="text" class="form-input" id="username" placeholder="Username">
+                <input type="password" class="form-input" id="password" placeholder="Password">
+                <button type="submit" class="btn-login">Access Dashboard</button>
+            </form>
+            <div style="margin-top:1.5rem; font-size:0.75rem; color: var(--fg-muted);">
+                Default: admin / admin123
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Action Successful</div>
+
+    <!-- App -->
+    <div class="app-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="fas fa-hand-holding-heart"></i></div>
+                <div class="sidebar-title">SONVI</div>
+            </div>
+            
+            <nav class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="#" class="nav-link active" data-target="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Dashboard
+                </a>
+                
+                <div class="nav-section-title">Registrations</div>
+                <a href="#" class="nav-link" data-target="volunteers">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Volunteers
+                </a>
+                <a href="#" class="nav-link" data-target="education">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    Education
+                </a>
+                <a href="#" class="nav-link" data-target="organs">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Organ Donors
+                </a>
+                <a href="#" class="nav-link" data-target="elder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Elder Care
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <h3 style="font-weight: 600; color: white;" id="pageTitle">Dashboard</h3>
+                <div class="user-info">
+                    <span style="font-size:0.9rem; color: var(--fg-muted);" id="currentDate"></span>
+                    <div class="avatar">AD</div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                
+                <!-- Dashboard View -->
+                <div id="dashboardView" class="view-section">
+                    <div class="stats-grid">
+                        <div class="stat-card volunteers">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></div>
+                            <div class="stat-info"><h3 id="statVol">0</h3><p>Volunteers</p></div>
+                        </div>
+                        <div class="stat-card education">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+                            <div class="stat-info"><h3 id="statEdu">0</h3><p>Education</p></div>
+                        </div>
+                        <div class="stat-card organs">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                            <div class="stat-info"><h3 id="statOrg">0</h3><p>Organ Donors</p></div>
+                        </div>
+                        <div class="stat-card elder">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+                            <div class="stat-info"><h3 id="statEld">0</h3><p>Elder Care</p></div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Recent Activity</h3>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead><tr><th>Date</th><th>Type</th><th>Name</th><th>Status</th></tr></thead>
+                                <tbody id="recentBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Views (Hidden by default) -->
+                <div id="volunteersView" class="view-section" style="display:none;">
+                    <div class="table-container">
+                        <div class="table-header"><h3 class="table-title">Volunteer Applications</h3></div>
+                        <div style="overflow-x: auto;"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Area</th><th>Status</th><th>Actions</th></tr></thead><tbody id="volTable"></tbody></table></div>
+                    </div>
+                </div>
+
+                <div id="educationView" class="view-section" style="display:none;">
+                    <div class="table-container">
+                        <div class="table-header"><h3 class="table-title">Education Requests</h3></div>
+                        <div style="overflow-x: auto;"><table><thead><tr><th>Name</th><th>Contact</th><th>Type</th><th>Details</th><th>Status</th><th>Actions</th></tr></thead><tbody id="eduTable"></tbody></table></div>
+                    </div>
+                </div>
+
+                <div id="organsView" class="view-section" style="display:none;">
+                    <div class="table-container">
+                        <div class="table-header"><h3 class="table-title">Organ Donors</h3></div>
+                        <div style="overflow-x: auto;"><table><thead><tr><th>ID</th><th>Name</th><th>Blood</th><th>Organs</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orgTable"></tbody></table></div>
+                    </div>
+                </div>
+
+                <div id="elderView" class="view-section" style="display:none;">
+                    <div class="table-container">
+                        <div class="table-header"><h3 class="table-title">Elder Care Requests</h3></div>
+                        <div style="overflow-x: auto;"><table><thead><tr><th>Name</th><th>Contact</th><th>Type</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody id="elderTable"></tbody></table></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ═══════════════════════════════════════════════════════════════
+        const loginOverlay = document.getElementById('loginOverlay');
+        const toast = document.getElementById('toast');
+
+        if (sessionStorage.getItem('sonvi_admin')) {
+            loginOverlay.style.display = 'none';
+            initApp();
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if (u === 'admin' && p === 'admin123') {
+                sessionStorage.setItem('sonvi_admin', 'true');
+                loginOverlay.style.display = 'none';
+                initApp();
+            } else {
+                alert('Invalid credentials');
+            }
+        });
+
+        function logout() {
+            sessionStorage.removeItem('sonvi_admin');
+            location.reload();
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // NAVIGATION
+        // ═══════════════════════════════════════════════════════════════
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.view-section');
+        const pageTitle = document.getElementById('pageTitle');
+        const titles = {
+            dashboard: 'Dashboard Overview',
+            volunteers: 'Volunteer Management',
+            education: 'Education Support',
+            organs: 'Organ Donors',
+            elder: 'Elder Care Support'
+        };
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.dataset.target;
+                
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                sections.forEach(s => s.style.display = 'none');
+                document.getElementById(target + 'View').style.display = 'block';
+                pageTitle.textContent = titles[target];
+            });
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // CORE LOGIC (Fixed)
+        // ═══════════════════════════════════════════════════════════════
+        
+        const KEYS = {
+            volunteers: 'sonvi_volunteer_submissions',
+            education: 'sonvi_education_submissions',
+            organs: 'sonvi_organ_submissions',
+            elder: 'sonvi_elder_care_submissions'
+        };
+
+        function getData(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            } catch { return []; }
+        }
+
+        function saveData(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+            initApp(); // Refresh UI
+            showToast('Updated successfully!');
+        }
+
+        function deleteItem(key, id) {
+            if(!confirm('Delete this entry?')) return;
+            let data = getData(key);
+            // Fix: Filter by ID (converting both to string for safety)
+            data = data.filter(item => String(item.id) !== String(id));
+            saveData(key, data);
+        }
+
+        function updateStatus(key, id) {
+            let data = getData(key);
+            data = data.map(item => {
+                if (String(item.id) === String(id)) {
+                    return { ...item, status: 'Completed' };
+                }
+                return item;
+            });
+            saveData(key, data);
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // RENDERING
+        // ═══════════════════════════════════════════════════════════════
+        function initApp() {
+            // Date
+            document.getElementById('currentDate').textContent = new Date().toDateString();
+
+            // Fetch Data
+            const vol = getData(KEYS.volunteers);
+            const edu = getData(KEYS.education);
+            const org = getData(KEYS.organs);
+            const eld = getData(KEYS.elder);
+
+            // Stats
+            document.getElementById('statVol').textContent = vol.length;
+            document.getElementById('statEdu').textContent = edu.length;
+            document.getElementById('statOrg').textContent = org.length;
+            document.getElementById('statEld').textContent = eld.length;
+
+            // Recent Activity
+            const all = [
+                ...vol.map(i => ({...i, _t: 'Volunteer', _k: KEYS.volunteers})),
+                ...edu.map(i => ({...i, _t: 'Education', _k: KEYS.education})),
+                ...org.map(i => ({...i, _t: 'Organ', _k: KEYS.organs})),
+                ...eld.map(i => ({...i, _t: 'Elder Care', _k: KEYS.elder}))
+            ].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+            const recentBody = document.getElementById('recentBody');
+            recentBody.innerHTML = all.length === 0 ? '<tr><td colspan="4" class="empty-state">No recent activity.</td></tr>' :
+            all.map(i => `
+                <tr>
+                    <td>${i.date || 'N/A'}</td>
+                    <td><span style="color:var(--accent-primary)">${i._t}</span></td>
+                    <td>${i.name || 'N/A'}</td>
+                    <td><span class="badge badge-${(i.status||'pending').toLowerCase()}">${i.status || 'Pending'}</span></td>
+                </tr>
+            `).join('');
+
+            // Tables
+            renderTable('volTable', vol, KEYS.volunteers, ['name', 'email', 'phone', 'area']);
+            renderTable('eduTable', edu, KEYS.education, ['name', 'phone', 'type', 'details']);
+            renderTable('orgTable', org, KEYS.organs, ['id', 'name', 'bloodGroup', 'organs']);
+            renderTable('elderTable', eld, KEYS.elder, ['name', 'phone', 'supportType', 'location']);
+        }
+
+        function renderTable(id, data, key, cols) {
+            const tb = document.getElementById(id);
+            if(data.length === 0) {
+                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg><p>No data available</p></div></td></tr>`;
+                return;
+            }
+            
+            tb.innerHTML = data.map(item => `
+                <tr>
+                    ${cols.map(c => `<td>${item[c] || 'N/A'}</td>`).join('')}
+                    <td><span class="badge badge-${(item.status||'pending').toLowerCase()}">${item.status || 'Pending'}</span></td>
+                    <td>
+                        <button class="btn-action success" onclick="updateStatus('${key}', '${item.id}')">Done</button>
+                        <button class="btn-action danger" onclick="deleteItem('${key}', '${item.id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

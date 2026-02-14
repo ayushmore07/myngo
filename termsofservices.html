@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS VARIABLES & DARK THEME SYSTEM
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-tertiary: #0f172a;
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6;
+            --accent-secondary: #f59e0b;
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.8; /* Better readability for legal text */
+            overflow-x: hidden;
+        }
+
+        /* Background Elements */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 10% 10%, rgba(20, 184, 166, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 90%, rgba(245, 158, 11, 0.04) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.4; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3rem); }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Navigation */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); }
+        .nav-link:hover { color: var(--fg-primary); }
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           LAYOUT (Sidebar + Content)
+           ═══════════════════════════════════════════════════════════════ */
+        .page-container {
+            max-width: 1400px; margin: 0 auto; padding: 10rem 2rem 4rem;
+            display: grid; grid-template-columns: 300px 1fr; gap: 4rem;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation (Table of Contents) */
+        .sidebar {
+            position: sticky; top: 120px; height: fit-content;
+            padding-right: 2rem; border-right: 1px solid var(--glass-border);
+        }
+        .sidebar-title {
+            font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--fg-muted); margin-bottom: 1.5rem; font-weight: 700;
+        }
+        .toc-list { list-style: none; }
+        .toc-link {
+            display: block; padding: 0.75rem 0; color: var(--fg-secondary);
+            text-decoration: none; font-size: 0.95rem; transition: var(--transition-base);
+            border-left: 2px solid transparent; padding-left: 1rem; margin-left: -1rem;
+        }
+        .toc-link:hover { color: var(--fg-primary); }
+        .toc-link.active {
+            color: var(--accent-primary); border-left-color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content { padding-bottom: 4rem; }
+        
+        .content-header { margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border); }
+        .last-updated { font-size: 0.9rem; color: var(--fg-muted); margin-top: 1rem; }
+
+        .legal-section { margin-bottom: 3.5rem; }
+        .legal-section h2 {
+            font-size: 1.75rem; margin-bottom: 1.5rem; color: var(--fg-primary);
+            padding-bottom: 0.75rem; border-bottom: 1px solid var(--glass-border);
+        }
+        .legal-section p { margin-bottom: 1.5rem; color: var(--fg-secondary); }
+        .legal-section ul { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        .legal-section li { margin-bottom: 0.75rem; color: var(--fg-secondary); }
+        .legal-section li::marker { color: var(--accent-primary); }
+
+        /* Card Style for Definitions */
+        .definition-box {
+            background: rgba(20, 184, 166, 0.05); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); padding: 2rem; margin: 2rem 0;
+        }
+        .definition-box h4 { color: var(--accent-primary); margin-bottom: 1rem; font-family: 'Inter', sans-serif; font-weight: 700; }
+
+        /* Footer */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--glass-border); padding: 3rem 2rem; text-align: center; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .page-container { grid-template-columns: 1fr; padding-top: 8rem; }
+            .sidebar { display: none; } /* Hide sidebar on tablet/mobile */
+        }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .legal-section h2 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="services.html" class="nav-link">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="services.html">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Page Container -->
+    <div class="page-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Table of Contents</div>
+            <ul class="toc-list">
+                <li><a href="#acceptance" class="toc-link active">1. Acceptance of Terms</a></li>
+                <li><a href="#privacy" class="toc-link">2. Privacy Policy</a></li>
+                <li><a href="#use" class="toc-link">3. Use of Website</a></li>
+                <li><a href="#intellectual" class="toc-link">4. Intellectual Property</a></li>
+                <li><a href="#disclaimer" class="toc-link">5. Disclaimer</a></li>
+                <li><a href="#changes" class="toc-link">6. Changes to Terms</a></li>
+                <li><a href="#contact" class="toc-link">7. Contact Information</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <div class="content-header">
+                <h1 class="headline-large">Terms of <span class="text-gradient">Service</span></h1>
+                <div class="last-updated">Last Updated: October 26, 2024</div>
+            </div>
+
+            <!-- Section 1 -->
+            <section id="acceptance" class="legal-section">
+                <h2>1. Acceptance of Terms</h2>
+                <p>Welcome to the SONVI NGO website. By accessing or using our website, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
+                <p>The materials contained in this website are protected by applicable copyright and trademark law.</p>
+            </section>
+
+            <!-- Section 2 -->
+            <section id="privacy" class="legal-section">
+                <h2>2. Privacy Policy</h2>
+                <p>Your use of SONVI NGO's website is also governed by our Privacy Policy. Please review our Privacy Policy to understand how we collect, use, and protect your personal information.</p>
+                <div class="definition-box">
+                    <h4>Data Collection</h4>
+                    <p>We collect data solely for the purpose of facilitating donations, volunteer registration, and program outreach. We do not sell or trade your personal information to third parties.</p>
+                </div>
+            </section>
+
+            <!-- Section 3 -->
+            <section id="use" class="legal-section">
+                <h2>3. Use of Website</h2>
+                <p>Permission is granted to temporarily download one copy of the materials (information or software) on SONVI NGO's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+                <ul>
+                    <li>Modify or copy the materials;</li>
+                    <li>Use the materials for any commercial purpose, or for any public display (commercial or non-commercial);</li>
+                    <li>Attempt to decompile or reverse engineer any software contained on the website;</li>
+                    <li>Remove any copyright or other proprietary notations from the materials; or</li>
+                    <li>Transfer the materials to another person or "mirror" the materials on any other server.</li>
+                </ul>
+            </section>
+
+            <!-- Section 4 -->
+            <section id="intellectual" class="legal-section">
+                <h2>4. Intellectual Property</h2>
+                <p>All content on this website, including but not limited to text, graphics, logos, images, and software, is the property of SONVI NGO or its content suppliers and is protected by international copyright laws.</p>
+                <p>Unauthorized use of any materials may violate copyright, trademark, and other laws. If you breach any of these Terms, your permission to use the website will automatically terminate.</p>
+            </section>
+
+            <!-- Section 5 -->
+            <section id="disclaimer" class="legal-section">
+                <h2>5. Disclaimer</h2>
+                <p>The materials on SONVI NGO's website are provided on an 'as is' basis. SONVI NGO makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+                <p>Further, SONVI NGO does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.</p>
+            </section>
+
+            <!-- Section 6 -->
+            <section id="changes" class="legal-section">
+                <h2>6. Changes to Terms</h2>
+                <p>SONVI NGO may revise these Terms of Service for its website at any time without notice. By using this website, you are agreeing to be bound by the then current version of these Terms of Service.</p>
+            </section>
+
+            <!-- Section 7 -->
+            <section id="contact" class="legal-section">
+                <h2>7. Contact Information</h2>
+                <p>If you have any questions about these Terms of Service, please contact us:</p>
+                <ul>
+                    <li><strong>Email:</strong> legal@sonvingo.org</li>
+                    <li><strong>Phone:</strong> +91 98765 43210</li>
+                    <li><strong>Address:</strong> Pimpri, Maharashtra, India</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+        <div style="margin-top: 1rem;">
+            <a href="termsofservices.html" style="color: var(--accent-primary); margin-right: 1.5rem; text-decoration: none; font-size: 0.9rem;">Terms of Service</a>
+            <a href="feedback.html" style="color: var(--fg-muted); text-decoration: none; font-size: 0.9rem;">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Sidebar Active State on Scroll
+        const sections = document.querySelectorAll('.legal-section');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach( section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach( link => {
+                link.classList.remove('active');
+                if(link.getAttribute('href').includes(current)){
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

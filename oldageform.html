@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vruddhashram Support Form | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6; /* Teal */
+            --accent-secondary: #f59e0b; /* Amber - Good for warmth/elderly care */
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; font-size: 16px; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Background */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(20, 184, 166, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); }
+        .nav-link:hover { color: var(--fg-primary); }
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           MAIN LAYOUT
+           ═══════════════════════════════════════════════════════════════ */
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+        }
+
+        .split-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            max-width: 1200px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Visual Side */
+        .visual-side {
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80') center/cover no-repeat;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3rem;
+        }
+
+        .visual-side::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(10, 15, 26, 0.9), transparent);
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .visual-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .visual-content p {
+            color: var(--fg-secondary);
+            font-size: 1.1rem;
+            max-width: 400px;
+        }
+
+        /* Form Side */
+        .form-side {
+            padding: 3rem;
+            background: rgba(17, 24, 39, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--fg-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            color: var(--fg-primary);
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition-base);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-secondary); /* Highlighting Amber for this form */
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        /* Support Type Selection */
+        .support-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .support-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .support-card input { display: none; }
+
+        .support-card:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .support-card.selected {
+            border-color: var(--accent-secondary);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .support-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .support-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        .support-name { font-size: 0.9rem; font-weight: 600; color: var(--fg-secondary); transition: var(--transition-base); }
+        .support-card.selected .support-name { color: var(--fg-primary); }
+
+        /* Dynamic Section */
+        .dynamic-section {
+            display: none;
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .dynamic-section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .payment-btns {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .payment-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.05);
+            color: var(--fg-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition-base);
+            font-weight: 600;
+        }
+
+        .payment-btn:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+            color: var(--bg-primary);
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--accent-secondary), #d97706);
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition-base);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Success Message */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 26, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-base);
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-box {
+            background: var(--bg-secondary);
+            padding: 3rem;
+            border-radius: var(--radius-xl);
+            text-align: center;
+            max-width: 400px;
+            border: 1px solid var(--glass-border);
+            transform: scale(0.8);
+            transition: var(--transition-base);
+        }
+
+        .success-overlay.active .success-box {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(245, 158, 11, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--accent-secondary);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .split-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .visual-side {
+                min-height: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-side { padding: 1.5rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="education.html" class="nav-link active">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="education.html">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="split-wrapper">
+            
+            <!-- Visual Side -->
+            <div class="visual-side">
+                <div class="visual-content">
+                    <h1>Support Our <span class="text-gradient">Elders</span></h1>
+                    <p>Your contribution brings warmth, dignity, and care to the residents of our Vruddhashram.</p>
+                </div>
+            </div>
+
+            <!-- Form Side -->
+            <div class="form-side">
+                <div class="form-header">
+                    <h2>Vruddhashram Support</h2>
+                    <p class="text-body" style="color: var(--fg-muted);">Choose how you would like to help.</p>
+                </div>
+
+                <form id="oldageForm">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" class="form-input" id="name" placeholder="Your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="+91 98765 43210" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" id="email" placeholder="example@mail.com" required>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-input" id="state" placeholder="State" required>
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-input" id="city" placeholder="City" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-input" id="address" placeholder="Full Address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pincode</label>
+                        <input type="number" class="form-input" id="pincode" placeholder="Pincode" required>
+                    </div>
+
+                    <label style="margin-bottom: 0.5rem; display: block;">Select Support Type</label>
+                    <div class="support-options">
+                        <!-- Food -->
+                        <label class="support-card selected" id="toggleFood">
+                            <input type="radio" name="supportType" value="Food Support" checked>
+                            <span class="support-icon">🍚</span>
+                            <span class="support-name">Food Support</span>
+                        </label>
+                        <!-- Clothes -->
+                        <label class="support-card" id="toggleClothes">
+                            <input type="radio" name="supportType" value="Clothes Donation">
+                            <span class="support-icon">👕</span>
+                            <span class="support-name">Clothes</span>
+                        </label>
+                        <!-- Medical -->
+                        <label class="support-card" id="toggleMedical">
+                            <input type="radio" name="supportType" value="Medical Support">
+                            <span class="support-icon">💊</span>
+                            <span class="support-name">Medical</span>
+                        </label>
+                        <!-- Financial -->
+                        <label class="support-card" id="toggleMoney">
+                            <input type="radio" name="supportType" value="Financial Contribution">
+                            <span class="support-icon">💰</span>
+                            <span class="support-name">Financial</span>
+                        </label>
+                    </div>
+
+                    <!-- Dynamic Sections -->
+                    
+                    <!-- Food Section -->
+                    <div id="foodSection" class="dynamic-section active">
+                        <label>Food Details</label>
+                        <input type="text" class="form-input" id="foodDesc" placeholder="e.g., 50kg Rice, Vegetables">
+                    </div>
+
+                    <!-- Clothes Section -->
+                    <div id="clothesSection" class="dynamic-section">
+                        <label>Clothes Details</label>
+                        <input type="text" class="form-input" id="clothesDesc" placeholder="e.g., 20 Blankets, 10 Sweaters">
+                    </div>
+
+                    <!-- Medical Section -->
+                    <div id="medicalSection" class="dynamic-section">
+                        <label>Medical Details</label>
+                        <input type="text" class="form-input" id="medicalDesc" placeholder="e.g., BP Monitors, Medicines">
+                    </div>
+
+                    <!-- Financial Section -->
+                    <div id="moneySection" class="dynamic-section">
+                        <label>Donation Amount (₹)</label>
+                        <input type="number" class="form-input" id="donationAmount" placeholder="Enter amount">
+                        <div class="payment-btns">
+                            <button type="button" class="payment-btn" onclick="simulatePayment('GPay')">GPay</button>
+                            <button type="button" class="payment-btn" onclick="simulatePayment('Card')">Card</button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Support Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-box">
+            <div class="success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Thank You!</h3>
+            <p class="text-body" style="color: var(--fg-muted);">Your kindness brings joy to our elders. We will contact you shortly.</p>
+            <button onclick="closeModal()" class="submit-btn" style="margin-top: 1.5rem; padding: 0.75rem 2rem;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // NAVBAR LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // ═══════════════════════════════════════════════════════════════
+        // TOGGLE DYNAMIC FIELDS LOGIC
+        // ═══════════════════════════════════════════════════════════════
+        const cards = document.querySelectorAll('.support-card');
+        const sections = {
+            "Food Support": document.getElementById('foodSection'),
+            "Clothes Donation": document.getElementById('clothesSection'),
+            "Medical Support": document.getElementById('medicalSection'),
+            "Financial Contribution": document.getElementById('moneySection')
+        };
+
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove active from all cards
+                cards.forEach(c => c.classList.remove('selected'));
+                // Add active to clicked card
+                card.classList.add('selected');
+                
+                // Hide all sections
+                Object.values(sections).forEach(s => s.classList.remove('active'));
+                
+                // Show selected section
+                const value = card.querySelector('input').value;
+                if (sections[value]) {
+                    sections[value].classList.add('active');
+                }
+            });
+        });
+
+        function simulatePayment(method) {
+            alert(`Redirecting to ${method} payment... (Simulated)`);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // FORM SUBMISSION & LOCALSTORAGE
+        // ═══════════════════════════════════════════════════════════════
+        const form = document.getElementById('oldageForm');
+        const successOverlay = document.getElementById('successOverlay');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const state = document.getElementById('state').value;
+            const city = document.getElementById('city').value;
+            const address = document.getElementById('address').value;
+            const pincode = document.getElementById('pincode').value;
+            
+            const supportType = document.querySelector('input[name="supportType"]:checked').value;
+            let details = '';
+
+            // Get details based on type
+            if (supportType === "Food Support") details = document.getElementById('foodDesc').value;
+            else if (supportType === "Clothes Donation") details = document.getElementById('clothesDesc').value;
+            else if (supportType === "Medical Support") details = document.getElementById('medicalDesc').value;
+            else if (supportType === "Financial Contribution") details = '₹' + document.getElementById('donationAmount').value;
+
+            // Create Object
+            const submission = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString(),
+                name: name,
+                phone: phone,
+                email: email,
+                location: `${address}, ${city}, ${state} - ${pincode}`,
+                supportType: supportType,
+                details: details,
+                status: 'Pending'
+            };
+
+            // Save to LocalStorage
+            let submissions = JSON.parse(localStorage.getItem('sonvi_elder_care_submissions') || '[]');
+            submissions.push(submission);
+            localStorage.setItem('sonvi_elder_care_submissions', JSON.stringify(submissions));
+
+            // Show Success
+            successOverlay.classList.add('active');
+        });
+
+        function closeModal() {
+            successOverlay.classList.remove('active');
+            form.reset();
+            // Reset UI
+            document.querySelectorAll('.support-card').forEach((c, i) => {
+                if(i === 0) c.classList.add('selected');
+                else c.classList.remove('selected');
+            });
+            Object.values(sections).forEach((s, i) => {
+                if(i === 0) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+    </script>
+</body>
+</html>

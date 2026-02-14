@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Support | SONVI NGO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════
+           CSS CUSTOM PROPERTIES & ROOT VARIABLES
+           ═══════════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --fg-primary: #f8fafc;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --accent-primary: #14b8a6;
+            --accent-secondary: #f59e0b;
+            --accent-glow: rgba(20, 184, 166, 0.4);
+            --border-color: rgba(148, 163, 184, 0.1);
+            --glass-bg: rgba(17, 24, 39, 0.6);
+            --glass-border: rgba(148, 163, 184, 0.15);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 25px 50px rgba(0, 0, 0, 0.5);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+            --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESET & BASE STYLES
+           ═══════════════════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) var(--bg-primary);
+        }
+
+        html::-webkit-scrollbar { width: 10px; }
+        html::-webkit-scrollbar-track { background: var(--bg-primary); }
+        html::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary)); border-radius: 5px; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body.no-scroll { overflow: hidden; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PRELOADER
+           ═══════════════════════════════════════════════════════════════ */
+        .preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary);
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            z-index: 10000;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .preloader-logo {
+            font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 2rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .preloader-bar { width: 200px; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden; }
+        .preloader-bar::after {
+            content: ''; display: block; width: 0; height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            animation: loading 2s ease-out forwards;
+        }
+        @keyframes loading { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 10px var(--accent-glow)); } 50% { filter: drop-shadow(0 0 25px var(--accent-glow)); } }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ANIMATED BACKGROUND
+           ═══════════════════════════════════════════════════════════════ */
+        .bg-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+        }
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.03; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           TYPOGRAPHY
+           ═══════════════════════════════════════════════════════════════ */
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; line-height: 1.2; color: var(--fg-primary); }
+        .headline-display { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+        .headline-large { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 600; letter-spacing: -0.01em; }
+        .headline-medium { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; }
+        .text-body { font-size: 1rem; line-height: 1.7; color: var(--fg-secondary); }
+        .text-body-large { font-size: 1.125rem; line-height: 1.8; color: var(--fg-secondary); }
+        .text-gradient { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           NAVIGATION
+           ═══════════════════════════════════════════════════════════════ */
+        .navbar { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 1rem 0; transition: var(--transition-base); }
+        .navbar.scrolled { background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); padding: 0.75rem 0; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; }
+        .logo-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); border-radius: 12px; transition: var(--transition-base); }
+        .logo-icon svg { width: 28px; height: 28px; color: white; }
+        .logo-container:hover .logo-icon { transform: scale(1.05) rotate(-5deg); }
+        .logo-text { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--fg-primary); transition: var(--transition-base); }
+        .logo-container:hover .logo-text { color: var(--accent-primary); }
+        
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; list-style: none; }
+        .nav-link { position: relative; padding: 0.75rem 1.25rem; color: var(--fg-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: var(--transition-base); border-radius: var(--radius-sm); }
+        .nav-link::before { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); transition: var(--transition-base); transform: translateX(-50%); }
+        .nav-link:hover { color: var(--fg-primary); background: rgba(255, 255, 255, 0.05); }
+        .nav-link:hover::before { width: calc(100% - 2rem); }
+        .nav-link.active { color: var(--accent-primary); }
+        .nav-link.active::before { width: calc(100% - 2rem); }
+        
+        .nav-cta { padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: white; text-decoration: none; font-size: 0.9rem; font-weight: 600; border-radius: 50px; transition: var(--transition-base); box-shadow: var(--shadow-sm); }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3); }
+
+        /* Mobile Menu */
+        .menu-toggle { display: none; flex-direction: column; gap: 6px; cursor: pointer; padding: 10px; background: none; border: none; z-index: 1001; }
+        .menu-toggle span { display: block; width: 28px; height: 2px; background: var(--fg-primary); transition: var(--transition-base); transform-origin: center; }
+        .menu-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+        .menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .menu-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
+        
+        .mobile-nav { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: var(--bg-primary); z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1rem; opacity: 0; visibility: hidden; transition: var(--transition-base); }
+        .mobile-nav.active { opacity: 1; visibility: visible; }
+        .mobile-nav a { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--fg-primary); text-decoration: none; padding: 1rem; transform: translateY(20px); opacity: 0; transition: var(--transition-base); }
+        .mobile-nav.active a { transform: translateY(0); opacity: 1; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PAGE HEADER
+           ═══════════════════════════════════════════════════════════════ */
+        .page-header { min-height: 70vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; padding: 10rem 2rem 6rem; overflow: hidden; }
+        .page-header-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .page-header-bg img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+        .page-header-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, rgba(10, 15, 26, 0.5) 0%, var(--bg-primary) 100%); }
+        .breadcrumb { display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--fg-muted); }
+        .breadcrumb a { color: var(--accent-primary); text-decoration: none; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           STATS SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .stats-section { padding: 4rem 2rem; margin-top: -4rem; position: relative; z-index: 2; }
+        .section-container { max-width: 1400px; margin: 0 auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+        .stat-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+            padding: 2rem; text-align: center; transition: var(--transition-base);
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: var(--accent-primary); }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; color: var(--accent-primary); line-height: 1; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 0.9rem; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           ABOUT PROGRAM
+           ═══════════════════════════════════════════════════════════════ */
+        .about-program { padding: 6rem 2rem; }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+        .about-image-container { position: relative; }
+        .about-image {
+            width: 100%; height: 500px; object-fit: cover; border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg); transition: var(--transition-slow);
+        }
+        .about-image:hover { transform: scale(1.02); }
+        .about-content h2 { margin-bottom: 1.5rem; }
+        .about-content p { margin-bottom: 1rem; }
+        .check-list { list-style: none; margin-top: 1.5rem; }
+        .check-list li { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1rem; color: var(--fg-secondary); }
+        .check-icon { width: 24px; height: 24px; color: var(--accent-primary); flex-shrink: 0; margin-top: 2px; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PROGRAMS/INITIATIVES
+           ═══════════════════════════════════════════════════════════════ */
+        .programs-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .programs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .program-card {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg); overflow: hidden; transition: var(--transition-base);
+        }
+        .program-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-lg); border-color: rgba(20, 184, 166, 0.3); }
+        .program-image { height: 220px; overflow: hidden; }
+        .program-image img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition-slow); }
+        .program-card:hover .program-image img { transform: scale(1.1); }
+        .program-content { padding: 2rem; }
+        .program-icon { width: 50px; height: 50px; background: rgba(20, 184, 166, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: var(--accent-primary); transition: var(--transition-base); }
+        .program-card:hover .program-icon { background: var(--accent-primary); color: white; }
+        .program-content h3 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .program-content p { font-size: 0.9rem; color: var(--fg-secondary); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PROCESS TIMELINE
+           ═══════════════════════════════════════════════════════════════ */
+        .process-section { padding: 6rem 2rem; position: relative; }
+        .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; position: relative; }
+        .process-grid::before {
+            content: ''; position: absolute; top: 40px; left: 0; width: 100%; height: 2px;
+            background: var(--glass-border); z-index: 0;
+        }
+        .process-step { text-align: center; position: relative; z-index: 1; }
+        .step-number {
+            width: 80px; height: 80px; background: var(--bg-primary); border: 2px solid var(--glass-border);
+            border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);
+            transition: var(--transition-base);
+        }
+        .process-step:hover .step-number { background: var(--accent-primary); color: white; border-color: var(--accent-primary); transform: scale(1.1); }
+        .process-step h4 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .process-step p { font-size: 0.85rem; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           GALLERY
+           ═══════════════════════════════════════════════════════════════ */
+        .gallery-section { padding: 6rem 2rem; background: var(--bg-secondary); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .gallery-item { height: 300px; border-radius: var(--radius-lg); overflow: hidden; position: relative; cursor: pointer; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition-slow); opacity: 0.8; }
+        .gallery-item:hover img { transform: scale(1.1); opacity: 1; }
+        .gallery-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 2rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            transform: translateY(100%); transition: var(--transition-base);
+        }
+        .gallery-item:hover .gallery-overlay { transform: translateY(0); }
+        .gallery-overlay h4 { color: white; font-size: 1.1rem; }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FAQ
+           ═══════════════════════════════════════════════════════════════ */
+        .faq-section { padding: 6rem 2rem; }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        .faq-item {
+            margin-bottom: 1rem; border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md); overflow: hidden; transition: var(--transition-base);
+        }
+        .faq-item:hover { border-color: rgba(20, 184, 166, 0.3); }
+        .faq-question {
+            width: 100%; padding: 1.5rem; background: var(--glass-bg); border: none;
+            text-align: left; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: center; color: var(--fg-primary); font-family: 'Inter', sans-serif;
+            font-size: 1rem; font-weight: 500;
+        }
+        .faq-icon { transition: var(--transition-base); color: var(--accent-primary); }
+        .faq-item.active .faq-icon { transform: rotate(45deg); }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255, 255, 255, 0.02); }
+        .faq-answer-content { padding: 1.5rem; color: var(--fg-secondary); border-top: 1px solid var(--glass-border); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           CTA SECTION
+           ═══════════════════════════════════════════════════════════════ */
+        .cta-section {
+            padding: 6rem 2rem; background: linear-gradient(135deg, var(--accent-primary), #0d9488);
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .cta-section::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); opacity: 0.2; }
+        .cta-content { position: relative; z-index: 1; }
+        .cta-title { color: white; margin-bottom: 1rem; }
+        .cta-text { color: rgba(255,255,255,0.9); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .btn-white { background: white; color: var(--accent-primary); padding: 1rem 2rem; border-radius: 50px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: var(--transition-base); box-shadow: var(--shadow-md); }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════════════════════════ */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--glass-border); padding: 3rem 2rem; text-align: center; color: var(--fg-muted); }
+
+        /* ═══════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .about-grid { grid-template-columns: 1fr; }
+            .programs-grid { grid-template-columns: 1fr; }
+            .process-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .process-grid::before { display: none; }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .menu-toggle { display: flex; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .gallery-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Reveal Animations */
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* Accessibility */
+        :focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-logo">SONVI NGO</div>
+        <div class="preloader-bar"></div>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="noise-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-inner">
+            <a href="index.html" class="logo-container">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <span class="logo-text">SONVI NGO</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="aboutus.html" class="nav-link">About</a></li>
+                <li><a href="#" class="nav-link active">Programs</a></li>
+                <li><a href="volunteer.html" class="nav-link">Volunteer</a></li>
+                <li><a href="feedback.html" class="nav-cta">Contact</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Nav -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="index.html">Home</a>
+        <a href="aboutus.html">About</a>
+        <a href="#">Programs</a>
+        <a href="volunteer.html">Volunteer</a>
+        <a href="feedback.html">Contact</a>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="page-header-bg">
+            <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&q=80" alt="Education Support">
+        </div>
+        <div class="page-header-content reveal">
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span>/</span>
+                <span>Education Support</span>
+            </div>
+            <h1 class="headline-display">Empowering Through <span class="text-gradient">Education</span></h1>
+            <p class="text-body-large" style="color: var(--fg-secondary); max-width: 600px; margin: 1rem auto 0;">
+                Providing the tools, resources, and support children need to build a brighter future through learning.
+            </p>
+        </div>
+    </header>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="section-container">
+            <div class="stats-grid">
+                <div class="stat-card reveal">
+                    <div class="stat-number" data-count="500">0</div>
+                    <div class="stat-label">Students Supported</div>
+                </div>
+                <div class="stat-card reveal reveal-delay-1">
+                    <div class="stat-number" data-count="50">0</div>
+                    <div class="stat-label">Schools Partnered</div>
+                </div>
+                <div class="stat-card reveal reveal-delay-2">
+                    <div class="stat-number" data-count="120">0</div>
+                    <div class="stat-label">Scholarships Given</div>
+                </div>
+                <div class="stat-card reveal reveal-delay-3">
+                    <div class="stat-number" data-count="95">0</div>
+                    <div class="stat-label">Pass Rate %</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Program -->
+    <section class="about-program">
+        <div class="section-container">
+            <div class="about-grid">
+                <div class="about-image-container reveal">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?w=800&q=80" alt="Students Learning" class="about-image">
+                </div>
+                <div class="about-content reveal reveal-delay-1">
+                    <h2 class="headline-large">Why Education Matters</h2>
+                    <p class="text-body">
+                        Education is the foundation upon which we build our future. It equips individuals with the knowledge, skills, and confidence to break the cycle of poverty and contribute meaningfully to society.
+                    </p>
+                    <p class="text-body">
+                        At SONVI, we believe every child deserves access to quality learning resources, regardless of their economic background.
+                    </p>
+                    <ul class="check-list">
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span>Reduces poverty and increases economic growth</span>
+                        </li>
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span>Promotes gender equality and empowers women</span>
+                        </li>
+                        <li>
+                            <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <span>Fosters critical thinking and decision making</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Section -->
+    <section class="programs-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Our Initiatives</h2>
+                <p class="text-body" style="max-width: 600px; margin: 1rem auto 0;">Comprehensive support systems designed to remove barriers to education.</p>
+            </div>
+            <div class="programs-grid">
+                <div class="program-card reveal">
+                    <div class="program-image">
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80" alt="Scholarships">
+                    </div>
+                    <div class="program-content">
+                        <div class="program-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                        </div>
+                        <h3>Scholarship Program</h3>
+                        <p>Financial aid for meritorious students from low-income families to cover tuition and college fees.</p>
+                    </div>
+                </div>
+                <div class="program-card reveal reveal-delay-1">
+                    <div class="program-image">
+                        <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=80" alt="Learning Materials">
+                    </div>
+                    <div class="program-content">
+                        <div class="program-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <h3>Learning Materials</h3>
+                        <p>Distribution of textbooks, stationery, uniforms, and digital devices to under-resourced schools.</p>
+                    </div>
+                </div>
+                <div class="program-card reveal reveal-delay-2">
+                    <div class="program-image">
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&q=80" alt="Mentorship">
+                    </div>
+                    <div class="program-content">
+                        <div class="program-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <h3>Mentorship & Coaching</h3>
+                        <p>Connecting students with mentors for career guidance, soft skills training, and personal development.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">How It Works</h2>
+                <p class="text-body">Transparent and efficient process to ensure aid reaches the right hands.</p>
+            </div>
+            <div class="process-grid">
+                <div class="process-step reveal">
+                    <div class="step-number">01</div>
+                    <h4>Application</h4>
+                    <p>Students or guardians submit applications with necessary documentation.</p>
+                </div>
+                <div class="process-step reveal reveal-delay-1">
+                    <div class="step-number">02</div>
+                    <h4>Verification</h4>
+                    <p>Our team conducts background checks and home visits to verify needs.</p>
+                </div>
+                <div class="process-step reveal reveal-delay-2">
+                    <div class="step-number">03</div>
+                    <h4>Selection</h4>
+                    <p>Eligible candidates are selected based on need and academic potential.</p>
+                </div>
+                <div class="process-step reveal reveal-delay-3">
+                    <div class="step-number">04</div>
+                    <h4>Disbursement</h4>
+                    <p>Direct transfer of funds or materials to the student or institution.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+        <div class="section-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Impact In Action</h2>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item reveal">
+                    <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80" alt="Classroom Support">
+                    <div class="gallery-overlay">
+                        <h4>Classroom Support</h4>
+                    </div>
+                </div>
+                <div class="gallery-item reveal reveal-delay-1">
+                    <img src="https://images.unsplash.com/photo-1577896851231-70ef18881754?w=600&q=80" alt="Book Distribution">
+                    <div class="gallery-overlay">
+                        <h4>Book Distribution</h4>
+                    </div>
+                </div>
+                <div class="gallery-item reveal reveal-delay-2">
+                    <img src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80" alt="Community Learning">
+                    <div class="gallery-overlay">
+                        <h4>Community Learning</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="faq-container">
+            <div class="section-header reveal">
+                <h2 class="headline-large">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-item reveal">
+                <button class="faq-question">
+                    Who is eligible for education support?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Children from families with an annual income below a certain threshold, who are enrolled in a recognized school or college, are eligible to apply. Specific criteria may vary by program.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item reveal reveal-delay-1">
+                <button class="faq-question">
+                    How can I sponsor a child?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        You can sponsor a child by clicking the 'Contribute' button above. You can choose to cover their tuition, provide study materials, or support their living expenses.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item reveal reveal-delay-2">
+                <button class="faq-question">
+                    Does SONVI provide offline coaching?
+                    <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes, we run weekend coaching centers in select communities where volunteers help students with difficult subjects, exam preparation, and career counseling.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content reveal">
+            <h2 class="headline-large cta-title">Support a Child's Dream</h2>
+            <p class="text-body-large cta-text">Your contribution can pay for a child's books, uniform, or tuition. Change a life today.</p>
+            <a href="educationform.html" class="btn-white">
+                Contribute Now
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 SONVI NGO. All Rights Reserved.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.7;">Education for Every Child</p>
+    </footer>
+
+    <script>
+        // Preloader
+        const preloader = document.getElementById('preloader');
+        window.addEventListener('load', () => {
+            setTimeout(() => { preloader.classList.add('hidden'); }, 2000);
+        });
+
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+        });
+
+        // Mobile Menu
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileNav = document.getElementById('mobileNav');
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            mobileNav.classList.toggle('active');
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('revealed');
+            });
+        }, { threshold: 0.1 });
+        reveals.forEach(el => revealObserver.observe(el));
+
+        // Counter Animation
+        const counters = document.querySelectorAll('.stat-number');
+        let countersAnimated = false;
+
+        function animateCounters() {
+            if (countersAnimated) return;
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current).toLocaleString() + '+';
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target.toLocaleString() + '+';
+                    }
+                };
+                updateCounter();
+            });
+            countersAnimated = true;
+        }
+
+        const statsSection = document.querySelector('.stats-section');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        if (statsSection) counterObserver.observe(statsSection);
+
+        // FAQ Accordion
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            const content = item.querySelector('.faq-answer-content');
+
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                faqItems.forEach(i => {
+                    i.classList.remove('active');
+                    i.querySelector('.faq-answer').style.maxHeight = '0';
+                });
+                if (!isActive) {
+                    item.classList.add('active');
+                    answer.style.maxHeight = content.scrollHeight + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
